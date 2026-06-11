@@ -49,11 +49,30 @@ only if the user explicitly asks about story content.
 ## Verifying changes
 
 - `node tests/run-tests.mjs` (or `npm test`) — 29 checks, zero deps; must pass.
-  Tests import the same ES modules the browser runs.
+  Tests import the same ES modules the browser runs. They do **not** execute any
+  Phaser rendering — a change can pass all 29 and still crash a scene at runtime.
+- Headless-browser smoke test: `tests/smoke-browser.mjs` boots the real game and
+  plays through every scene. Run it for **any change touching scenes/, ui/, or
+  rendering-related data**. In Claude Code cloud sessions the npm registry is
+  reachable (CDN hosts are not), so set it up with:
+  `mkdir -p /tmp/smoke && cd /tmp/smoke && npm init -y && npm i phaser@4 puppeteer`
+  then `SMOKE_DEPS=/tmp/smoke node tests/smoke-browser.mjs`. Note it drives scene
+  methods programmatically — real pointer clicks are not covered. Screenshots via
+  puppeteer (viewport 2560×1440) are the way to verify layout visually.
 - Run the game: any static server + browser, e.g. `python3 -m http.server 8000`
-  (a server is required; `file://` can't fetch the JSON).
-- Optional headless-browser smoke test: `tests/smoke-browser.mjs`, needs a dir with
-  `npm i phaser@4 puppeteer` passed as `SMOKE_DEPS=<dir>`.
+  (a server is required; `file://` can't fetch the JSON). The server sends no
+  Cache-Control headers, so browsers cache aggressively — hard-reload
+  (Ctrl+Shift+R) or DevTools "Disable cache" after changes.
+
+## Resolution & rendering facts
+
+- The game renders natively at **2560×1440**; all scene/UI coordinates and font
+  sizes are authored in that space (`Scale.FIT` letterboxes other window sizes).
+- BootScene generates the iso tileset at **128×64 per tile**. The map JSON's
+  embedded tileset (`tilewidth`, `tileheight`, `imagewidth`, `imageheight`) must
+  match the generated texture exactly — Phaser builds the tileset's UV table from
+  those declared numbers, and a mismatch crashes ExplorationScene.create with an
+  opaque TypeError (the game appears to freeze when leaving character creation).
 
 ## Conventions to preserve
 

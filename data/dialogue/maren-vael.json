@@ -1,0 +1,128 @@
+{
+  "id": "maren-vael",
+  "//": "Recruitment #1. Demonstrates: active checks where SUCCESS and FAILURE both recruit but set different relationship flags, plus a no-roll path that unlocks after the gate puzzle.",
+  "start": "entry",
+  "nodes": {
+    "entry": {
+      "text": "(routing)",
+      "redirects": [
+        { "conditions": [{ "type": "hasPartyMember", "member": "maren" }], "node": "with" },
+        { "conditions": [{ "type": "flag", "flag": "maren-met" }], "node": "hub" },
+        { "node": "intro" }
+      ]
+    },
+
+    "intro": {
+      "speaker": "Maren Vael",
+      "text": "A broad Cragfolk woman is driving fence posts beside the quarry road. The fence does not need mending. The posts go in anyway, one tremendous blow apiece, straight as a hymn.\n\nShe clocks you between swings. \"If you're selling something, the answer's the hammer. If you're the help Senna keeps praying for, you're late by a month and a miller.\"",
+      "voices": [
+        { "skill": "insight", "dc": 3, "text": "Each swing lands twice as hard as the work wants. That isn't maintenance. That's grief, looking for something it's allowed to hit." },
+        { "skill": "lore", "dc": 4, "text": "Vael. The same name as the mill-line on Senna's charter. Quarry-cousin to the miller, then — this is family business." }
+      ],
+      "effects": [{ "type": "setFlag", "flag": "maren-met" }],
+      "options": [
+        { "text": "\"I'm the late help. I'm going into the mill — and that hammer of yours is wasted on fence posts.\"", "next": "hub" },
+        { "text": "\"What did the quarry do to deserve this fencing?\"", "next": "quarry" }
+      ]
+    },
+
+    "quarry": {
+      "speaker": "Maren Vael",
+      "text": "\"Quarry didn't do anything. That's the trouble.\" She sets the hammer down, finally, leaning on it like a friend's shoulder. \"Thirty years I've known that pit's echo better than my own name. Shout into it, it shouts back — that's the deal, that's the whole religion of the place. A span ago I shouted and it just... kept it. Took my voice down into the dark and didn't pay it back.\n\nCrew left the next morning. Can't blame them. A quarry that doesn't echo is a grave that isn't full yet.\"",
+      "options": [
+        { "text": "\"Help me empty the thing that's eating the echoes, then. It's roosting in the mill.\"", "next": "hub" },
+        { "text": "\"Hard luck. Keep your fences straight.\" (leave)", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "hub": {
+      "speaker": "Maren Vael",
+      "text": "\"The mill.\" She weighs the word like a stone she's deciding whether to throw. \"I've half a mind and a whole hammer. But I don't follow strangers into the dark on charm alone — the last person who led me anywhere is the reason the mill's dark to begin with. Convince me you're worth following, or don't.\"",
+      "options": [
+        {
+          "text": "\"Arm-wrestle me. I win, you march. You win — you march anyway, but you get to be smug about it.\"",
+          "check": { "skill": "force", "dc": "medium", "success": "wrestle-win", "failure": "wrestle-lose" }
+        },
+        {
+          "text": "\"Kill the thing in the mill and the Hush loses its grip here. Your quarry echoes again, Maren. I mean to make it.\"",
+          "check": { "skill": "persuasion", "dc": "medium", "success": "moved", "failure": "refused" }
+        },
+        {
+          "text": "\"The bell-gate is already open. I did that. The dark's next.\"",
+          "conditions": [{ "type": "flag", "flag": "gate-open" }],
+          "next": "shown"
+        },
+        { "text": "\"Another time, then.\" (leave)", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "wrestle-win": {
+      "speaker": "Maren Vael",
+      "text": "Elbows on a fence rail, her hand around yours like a stone glove — and down, slow and astonished, the rail creaking under the both of you. Maren stares at her own flattened knuckles, then up at you, and something in her face unclenches for the first time in a month.\n\n\"Well,\" she says. \"Hells. Fetch my hammer, it's marching weather.\"",
+      "effects": [
+        { "type": "setFlag", "flag": "maren-respect" },
+        { "type": "recruit", "member": "maren" }
+      ],
+      "options": [
+        { "text": "\"Welcome aboard, forewoman.\"", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "wrestle-lose": {
+      "speaker": "Maren Vael",
+      "text": "Your arm hits the rail hard enough to bounce. Maren looks at you — at your offended expression, at your honestly attempted, completely flattened arm — and a laugh comes up out of her like water out of a broken pump: rusty, gasping, the first one in weeks. It takes her a while to stop.\n\n\"Oh, that was a terrible idea and you meant it completely.\" She wipes her eyes with her wrist. \"Fine. Anyone fool enough to offer a Cragfolk forewoman their arm is fool enough to walk into that mill — and somebody'd best be there to carry you out of it.\"",
+      "effects": [
+        { "type": "setFlag", "flag": "maren-amused" },
+        { "type": "recruit", "member": "maren" }
+      ],
+      "options": [
+        { "text": "\"I softened my grip out of courtesy. Obviously.\"", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "moved": {
+      "speaker": "Maren Vael",
+      "text": "\"Echoes again.\" She says it the way the starving say bread. The hammer comes up off the ground and onto her shoulder in one motion, like it weighs a rumor.\n\n\"You'd better not be selling something after all, stranger. Come on, then — the mill's been quiet long enough to think it's won.\"",
+      "effects": [
+        { "type": "setFlag", "flag": "maren-respect" },
+        { "type": "recruit", "member": "maren" }
+      ],
+      "options": [
+        { "text": "\"It hasn't. Let's go.\"", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "refused": {
+      "speaker": "Maren Vael",
+      "text": "\"Pretty words.\" She turns back to the fence and picks up the next post. \"The last pretty words I heard were 'the mill can wait until morning,' and I said them, so you'll forgive me if the currency's devalued.\" THUNK. \"Open the gate first. Do one true thing where I can see it. Then we'll talk about following.\"",
+      "options": [
+        { "text": "\"Then watch the gate, Maren. It won't be shut long.\" (leave)", "effects": [{ "type": "end" }] },
+        {
+          "text": "\"It's already open. Go and look.\"",
+          "conditions": [{ "type": "flag", "flag": "gate-open" }],
+          "next": "shown"
+        }
+      ]
+    },
+
+    "shown": {
+      "speaker": "Maren Vael",
+      "text": "She looks north. From here, the gap in the bell-gate's lattice is plain as a missing tooth — open, for the first time in a month, because of you.\n\nThe post she's holding goes back on the pile. \"One true thing,\" she says, half to herself. \"Right then. I'll want the left side of the door — Doran always oiled the right hinge and never the left, and I want to hear it squeak. I want that thing in there to hear something.\"",
+      "effects": [
+        { "type": "setFlag", "flag": "maren-respect" },
+        { "type": "recruit", "member": "maren" }
+      ],
+      "options": [
+        { "text": "\"The left side's yours.\"", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "with": {
+      "speaker": "Maren Vael",
+      "text": "\"Still here. Still hammered.\" She rolls her shoulder. \"Mill's north, daylight's burning, and I've got a hinge to listen to.\"",
+      "options": [
+        { "text": "\"On our way.\"", "effects": [{ "type": "end" }] }
+      ]
+    }
+  }
+}

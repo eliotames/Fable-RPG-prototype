@@ -1,0 +1,9 @@
+{
+  "//": "No dependencies, no build step. This file only tells Node that .js files are ES modules, so `npm test` / `node tests/run-tests.mjs` can import the same files the browser runs.",
+  "name": "winds-of-silence",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/run-tests.mjs"
+  }
+}

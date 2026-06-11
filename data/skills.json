@@ -1,0 +1,61 @@
+{
+  "//": "Skills gate dialogue options, passive 'voice' insights, and puzzle solutions. A skill's value = its governing attribute + race/class bonuses. voiceColor styles the skill's internal commentary in dialogue.",
+  "skills": [
+    {
+      "id": "force",
+      "name": "Force",
+      "attribute": "brawn",
+      "desc": "Break, bend, lift, hold. The argument that needs no words.",
+      "voiceColor": "#d88a6a"
+    },
+    {
+      "id": "endurance",
+      "name": "Endurance",
+      "attribute": "brawn",
+      "desc": "Outlast cold, pain, and long roads.",
+      "voiceColor": "#c4a484"
+    },
+    {
+      "id": "sleight",
+      "name": "Sleight",
+      "attribute": "finesse",
+      "desc": "Nimble fingers: locks, knots, hidden catches, light pockets.",
+      "voiceColor": "#8ad8b0"
+    },
+    {
+      "id": "stealth",
+      "name": "Stealth",
+      "attribute": "finesse",
+      "desc": "Move as the Hush does — unheard.",
+      "voiceColor": "#7aa8a0"
+    },
+    {
+      "id": "lore",
+      "name": "Lore",
+      "attribute": "intellect",
+      "desc": "Old stories, older warnings. Knowing what a thing is before it shows you.",
+      "voiceColor": "#8fb8d8"
+    },
+    {
+      "id": "tinkering",
+      "name": "Tinkering",
+      "attribute": "intellect",
+      "desc": "Gears, pumps, bell-works, and how to make broken things sing.",
+      "voiceColor": "#d8c06a"
+    },
+    {
+      "id": "persuasion",
+      "name": "Persuasion",
+      "attribute": "presence",
+      "desc": "Coax, bargain, rally, console. Words that still carry weight.",
+      "voiceColor": "#c9a0dc"
+    },
+    {
+      "id": "insight",
+      "name": "Insight",
+      "attribute": "presence",
+      "desc": "Hear what people leave unsaid — increasingly the only thing anyone says.",
+      "voiceColor": "#a0b8dc"
+    }
+  ]
+}

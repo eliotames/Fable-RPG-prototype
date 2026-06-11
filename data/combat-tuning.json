@@ -1,0 +1,90 @@
+{
+  "//": "Every number a designer would tune, in one file. Keys named // are comments and ignored by the engine.",
+
+  "creation": {
+    "//": "Character creation: each attribute starts at basePerAttribute; the player spends 'pool' points; no attribute may exceed maxAtCreation (before race/class bonuses).",
+    "basePerAttribute": 1,
+    "pool": 8,
+    "maxAtCreation": 5,
+    "minPerAttribute": 1
+  },
+
+  "derivation": {
+    "//": "Derived stat = base + attribute * per. Class 'armor' is added to defense afterwards.",
+    "maxHp": { "base": 18, "attribute": "brawn", "per": 4 },
+    "maxFocus": { "base": 4, "attribute": "intellect", "per": 1 },
+    "defense": { "base": 0, "attribute": "brawn", "per": 0.5 },
+    "speed": { "base": 3, "attribute": "finesse", "per": 1 }
+  },
+
+  "checks": {
+    "//": "Active checks roll 1d{die} + skill vs DC. Dialogue may use numeric DCs or these names.",
+    "die": 20,
+    "difficulties": { "trivial": 6, "easy": 9, "medium": 12, "hard": 15, "daunting": 18 }
+  },
+
+  "damage": {
+    "//": "damage = (power + scalingAttr*attrCoef) * elementMult * timingMult * brokenMult * parryMult * defendMult - defense*defenseCoef, ±variance, min minDamage. A perfect parry (mult 0) negates entirely.",
+    "attrCoef": 1.6,
+    "defenseCoef": 1.0,
+    "minDamage": 1,
+    "variance": 0.12
+  },
+
+  "elements": {
+    "list": ["physical", "air", "ember", "resonance"],
+    "weaknessMult": 1.5,
+    "resistMult": 0.6
+  },
+
+  "timing": {
+    "attack": {
+      "//": "Timed hit: cursor sweeps sweepMs; press within ±perfectMs of center = perfect, ±goodMs = good.",
+      "sweepMs": 900,
+      "perfectMs": 70,
+      "goodMs": 170,
+      "perfectMult": 1.5,
+      "goodMult": 1.2,
+      "missMult": 1.0
+    },
+    "parry": {
+      "//": "Enemy telegraphs for a random telegraphMin..MaxMs, then flashes '!'. Press within windowMs = parry (within perfectMs = perfect, negates). Pressing before the flash always fails.",
+      "telegraphMinMs": 700,
+      "telegraphMaxMs": 1500,
+      "windowMs": 260,
+      "perfectMs": 100,
+      "perfectMult": 0,
+      "goodMult": 0.45,
+      "failMult": 1.0
+    }
+  },
+
+  "break": {
+    "//": "Weakness hits reduce Toughness by the move's breakPower (weaknessOnly: other elements never chip it). At 0: Break — breakBonusDamage immediately, brokenTurns lost turns, brokenDamageMult on all damage taken, then Toughness recovers to full.",
+    "weaknessOnly": true,
+    "brokenTurns": 1,
+    "brokenDamageMult": 1.5,
+    "breakBonusDamage": 10,
+    "recoverToFull": true
+  },
+
+  "focus": {
+    "regenPerTurn": 1,
+    "defendRegen": 2
+  },
+
+  "defend": {
+    "damageMult": 0.5
+  },
+
+  "knowledge": {
+    "//": "If anyone in the party has Lore at or above this, enemy weaknesses are revealed from the first round.",
+    "loreRevealSkill": 5
+  },
+
+  "party": {
+    "maxSize": 3,
+    "reviveHpFraction": 0.3,
+    "healAfterCombat": true
+  }
+}

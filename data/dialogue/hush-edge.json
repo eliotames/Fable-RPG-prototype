@@ -1,0 +1,65 @@
+{
+  "id": "hush-edge",
+  "//": "Skill-reactive environment: Lore study or an Endurance check (or being Hollowed) grants hush-lore, which reveals the boss's weaknesses in combat via encounter modifiers.",
+  "start": "edge",
+  "nodes": {
+    "edge": {
+      "text": "West of the village the world simply... lowers its voice. Past a line you can see but not quite point at, the grass stands grey and unmoving, the air has the dead flatness of a sealed room, and your own footsteps arrive at your ears a half-beat late, apologetically. This is the Hush's edge. It has moved closer since the morning — there are bird tracks on the near side that end mid-stride.",
+      "voices": [
+        { "skill": "lore", "dc": 4, "text": "The grass isn't dead — it's withheld. The Hush doesn't kill; it confiscates. And note the boundary's shape: it bows AROUND the village hearths and bent wide of the bell tower until the bell went mute. It fears fire. It fears the true note. Write that down somewhere you won't lose it: like your survival." },
+        { "skill": "stealth", "dc": 4, "text": "Inside that line, even you would be loud. Nothing that hunts by sound could hear you coming — because nothing in there hears at all." }
+      ],
+      "options": [
+        {
+          "text": "Study the boundary line — where it bends, and what it bends around.",
+          "conditions": [{ "type": "skillAtLeast", "skill": "lore", "value": 4 }],
+          "next": "study"
+        },
+        {
+          "text": "Step across and stand inside it. Listen to what isn't there.",
+          "check": { "skill": "endurance", "dc": "medium", "success": "stood", "failure": "reel" }
+        },
+        {
+          "text": "Put your bare hand across the line, like greeting an old acquaintance.",
+          "conditions": [{ "type": "race", "race": "hollowed" }],
+          "next": "greeting"
+        },
+        { "text": "Keep well back from the line.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "study": {
+      "text": "You walk the boundary for a hundred paces, mapping its cowardice. It bellies wide around Pell's chimney-smoke. It cringes from the smithy's cold-banked forge, even now. And along the sightline to the bell tower there is a long healed scar in the grass where it clearly used to keep a much more respectful distance.\n\nFire and the true note. The thing in the mill is made of this same silence — and now you know exactly what it dreads.",
+      "effects": [{ "type": "setFlag", "flag": "hush-lore" }],
+      "options": [
+        { "text": "Commit the lesson to memory.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "stood": {
+      "text": "You cross the line and the world shuts like a book. No wind-sound, no bird, no blood in your own ears — a silence with texture, with *attention*. It leans on your chest like deep water and waits for you to panic.\n\nYou don't. You stand in the confiscated quiet, breathing, counting, until the silence stops being a predator and becomes a fact — and in that stillness you feel the grain of it: how it recoils, faintly and constantly, away from the village hearth-smoke, away from the dead bell's tower. You walk out knowing what it's afraid of.",
+      "effects": [{ "type": "setFlag", "flag": "hush-lore" }],
+      "options": [
+        { "text": "Step back into the world of sound. It's louder than you remembered.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "reel": {
+      "text": "You cross the line and the silence hits like cold water over the head. No heartbeat in your ears. No breath-sound. Your body, receiving no evidence it exists, files an immediate complaint — and you're back on the loud side of the line on your hands and knees, gasping, with no memory of the steps between.\n\nThe grey grass stands unmoved. Somewhere behind you, a crow makes the most beautiful sound you've ever heard.",
+      "options": [
+        { "text": "Get up. Dust off. Respect the line.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "greeting": {
+      "text": "The silence pools around your wrist like a cat deciding about a stranger — and then, horribly, like a cat recognizing one. It does not take your hand-sound. It gives a little back: for one heartbeat you hear, impossibly, a snatch of some other village's evening — a dog, a gate, a woman laughing — sounds it swallowed somewhere else, leaking from its hoard.\n\nIt remembers you. And beneath the recognition you feel the old aversion running through it like grain through wood: the cringe away from flame, the flinch from the true note. You came back from this thing once. You know its grain from the inside.",
+      "effects": [
+        { "type": "setFlag", "flag": "hush-lore" },
+        { "type": "setFlag", "flag": "hush-touched" }
+      ],
+      "options": [
+        { "text": "Withdraw your hand. Keep the borrowed sounds.", "effects": [{ "type": "end" }] }
+      ]
+    }
+  }
+}

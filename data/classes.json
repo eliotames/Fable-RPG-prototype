@@ -1,0 +1,43 @@
+{
+  "//": "Classes (backgrounds). 'armor' is added to derived defense. 'abilities' reference abilities.json; 'startingItems' reference items.json.",
+  "classes": [
+    {
+      "id": "warden",
+      "name": "Warden",
+      "desc": "Road-warden of the silent miles: shield on the back, hammer on the hip. Wardens hold the line so quieter people can run.",
+      "attributeBonuses": { "brawn": 1 },
+      "skillBonuses": { "force": 1, "endurance": 1 },
+      "armor": 3,
+      "abilities": ["strike", "crushing-blow", "second-wind"],
+      "startingItems": [
+        { "item": "hale-draught", "qty": 2 },
+        { "item": "ember-flask", "qty": 1 }
+      ]
+    },
+    {
+      "id": "windcaller",
+      "name": "Windcaller",
+      "desc": "A scholar-conjurer who argues with the air until it does something. Where the Hush deadens, a Windcaller insists on weather.",
+      "attributeBonuses": { "intellect": 1 },
+      "skillBonuses": { "lore": 1, "tinkering": 1 },
+      "armor": 1,
+      "abilities": ["strike", "gale-slash", "shear-burst"],
+      "startingItems": [
+        { "item": "hale-draught", "qty": 2 }
+      ]
+    },
+    {
+      "id": "chanter",
+      "name": "Chanter",
+      "desc": "Keeper of the resonant rites: tuning forks, struck bowls, held notes. Chanters are the only people the Hush seems to actively hate — which they take as encouragement.",
+      "attributeBonuses": { "presence": 1 },
+      "skillBonuses": { "persuasion": 1, "insight": 1 },
+      "armor": 2,
+      "abilities": ["strike", "resonant-word", "mending-chant"],
+      "startingItems": [
+        { "item": "hale-draught", "qty": 1 },
+        { "item": "tuning-fork", "qty": 1 }
+      ]
+    }
+  ]
+}

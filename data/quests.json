@@ -1,0 +1,26 @@
+{
+  "//": "Quests are linear stage lists; dialogue effects move between stages by id (startQuest begins at stages[0], advanceQuest jumps to any stage, completeQuest finishes). 'journal' is the long text in the journal panel; 'hint' is the one-liner on the HUD.",
+  "quests": [
+    {
+      "id": "a-quiet-toll",
+      "name": "A Quiet Toll",
+      "stages": [
+        {
+          "id": "open-the-way",
+          "journal": "Elder Senna believes whatever silenced the mill is roosting inside it still. The mill path is sealed by the bell-gate, which only opens to the sound of the great bell — and the bell has been stripped and stuffed with hush-wax. Find a way to make it sound, or force the way through. Help wouldn't hurt: Maren Vael is stewing by the quarry road, and there's a stranger by the pond who hums without sound.",
+          "hint": "Open the bell-gate north of the green."
+        },
+        {
+          "id": "the-roost",
+          "journal": "The bell-gate stands open. Whatever the Hush left in the mill is just up the path now. Go in ready: it is said the Husks dread true sound and living fire, and that a steady party survives what a lone hero doesn't.",
+          "hint": "Enter the mill and face what roosts there."
+        },
+        {
+          "id": "aftermath",
+          "journal": "The Sentinel is down. Decide what to do with the bell-heart it was guarding.",
+          "hint": "Settle the bell-heart's fate."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "id": "issi",
+  "//": "Recruitment #2. Demonstrates: race-reactive option (Hollowed), a passive-skill-gated no-roll path (Insight), an active check whose failure changes the dialogue's future state (issi-shy), and a retry at lower difficulty.",
+  "start": "entry",
+  "nodes": {
+    "entry": {
+      "text": "(routing)",
+      "redirects": [
+        { "conditions": [{ "type": "hasPartyMember", "member": "issi" }], "node": "with" },
+        { "conditions": [{ "type": "flag", "flag": "issi-shy" }], "node": "shy" },
+        { "node": "intro" }
+      ]
+    },
+
+    "intro": {
+      "speaker": "Issi",
+      "text": "A young woman sits at the pond's edge, lips moving through a song with nothing in it — verse after verse of shaped silence, her finger keeping time against her knee. The water in front of her is perfectly still. The water everywhere else ripples with the wind.\n\nShe notices you without alarm, the way deep pools notice rain. \"You walk loudly,\" she says. Her voice is flat and calm, like a bell heard through a wall. \"It's nice. Most people have started walking quietly, and they don't even notice they're doing it.\"",
+      "voices": [
+        { "skill": "insight", "dc": 4, "text": "She's not mute, and not mad. She's rationing — spending her voice a coin at a time, saving the rest of it for something that matters." },
+        { "skill": "lore", "dc": 5, "text": "Hollowed. Taken by the Hush and given back. The wind-orders wrote that it never takes them twice — and that they remember every sound it has ever swallowed." }
+      ],
+      "options": [
+        {
+          "text": "Say nothing. Let the silence you carry settle next to hers, like two cold hands recognizing each other.",
+          "conditions": [{ "type": "race", "race": "hollowed" }],
+          "next": "kindred"
+        },
+        {
+          "text": "Sit down at the pond's edge, a polite distance away, and wait without asking for anything.",
+          "conditions": [{ "type": "skillAtLeast", "skill": "insight", "value": 4 }],
+          "next": "patience"
+        },
+        {
+          "text": "\"I'm going into the mill after the thing that eats songs. I could use a voice braver than mine.\"",
+          "check": { "skill": "persuasion", "dc": "medium", "success": "moved", "failure": "startled" }
+        },
+        { "text": "Leave her to her soundless song.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "kindred": {
+      "speaker": "Issi",
+      "text": "Her finger stops keeping time. She looks at you properly — at the particular quality of the quiet that hangs off your shoulders — and her eyes go wide and then, slowly, warm.\n\n\"Oh,\" she says. \"You too. It gave you back too.\" She stands, brushing pond-grit from her knees, suddenly businesslike. \"Then you know it can be argued with. You're going to the mill — don't say how I know, you came back from the Hush, everything about you is pointed at that mill like a compass needle. I'm coming. It has three hundred and eleven of my songs and I have decided, today, that I want them returned.\"",
+      "effects": [{ "type": "recruit", "member": "issi" }],
+      "options": [
+        { "text": "\"Then let's go collect a debt.\"", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "patience": {
+      "speaker": "Issi",
+      "text": "You sit. The wind moves the reeds; her circle of stillness holds; you don't try to fill it. A minute passes, then several. Somewhere in the village a door closes, and you both listen to it like a rare bird.\n\n\"Most people ask things,\" she says at last. \"You waited. The Hush waits too, but not like that — it waits like a mouth. You wait like a door.\" She stands and offers you her hand, formal as a treaty. \"Issi. I keep the songs it swallowed. If you're going toward the mill, I would like to come and take some of them back.\"",
+      "effects": [{ "type": "recruit", "member": "issi" }],
+      "options": [
+        { "text": "Take her hand. \"It's a long walk. You can teach me a silent verse.\"", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "moved": {
+      "speaker": "Issi",
+      "text": "\"Braver than yours,\" she repeats, and a hint of dry amusement crosses the flat calm, like wind finally finding her patch of water. \"That's the first honest flattery anyone's spent on me since the Hush. Everyone else wants me to be a warning, or a relic, or somewhere else.\"\n\nShe rises. \"Yes. I'll come. The thing in the mill is holding a great many songs that don't belong to it — and a note has to be held by someone willing, or it's just more noise. I'm willing.\"",
+      "effects": [{ "type": "recruit", "member": "issi" }],
+      "options": [
+        { "text": "\"Welcome, song-keeper.\"", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "startled": {
+      "speaker": "Issi",
+      "text": "The wrong word lands somewhere tender. Her stillness snaps shut around her like a fan — the pond's calm circle shrinks to nothing, and for a moment she is just a thin young woman very far from her village, hugging her knees.\n\n\"Braver than yours,\" she echoes, barely audible. \"You don't know what my voice costs. Come back when you've thought about what you're asking me to spend it on.\"",
+      "effects": [{ "type": "setFlag", "flag": "issi-shy" }],
+      "options": [
+        { "text": "Withdraw, quietly.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "shy": {
+      "speaker": "Issi",
+      "text": "She's still at the pond, though the circle of still water in front of her is smaller now — wary, like the rest of her. She watches you approach and doesn't resume her soundless song.\n\n\"You came back,\" she says. Neutral. Testing.",
+      "voices": [
+        { "skill": "insight", "dc": 3, "text": "She came back to the same spot too. She wanted to be found again. The apology matters more than the argument." }
+      ],
+      "options": [
+        {
+          "text": "\"I asked badly, before. I'm not asking you to spend your voice for me — I'm asking to help you spend it on the thing that robbed you.\"",
+          "check": { "skill": "persuasion", "dc": "easy", "success": "moved", "failure": "still-shy" }
+        },
+        { "text": "Leave her be.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "still-shy": {
+      "speaker": "Issi",
+      "text": "She turns the words over for a long moment, then shakes her head, once. \"Closer,\" she allows. \"But not yet. Go do something the Hush will hate, and I'll hear about it. It's a small town and I hear everything that's left.\"",
+      "options": [
+        { "text": "Nod, and go.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "with": {
+      "speaker": "Issi",
+      "text": "Issi walks a half-step behind you, mouthing her soundless verses. \"Three hundred and eleven,\" she says, when she catches you looking. \"I'm deciding which one to take back first.\"",
+      "options": [
+        { "text": "\"Make it a loud one.\"", "effects": [{ "type": "end" }] }
+      ]
+    }
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "id": "mill-door",
+  "//": "Pre-combat confrontation. Demonstrates checks that materially change the fight: resonance ability or a Stealth success sets sentinel-weakened (boss starts 2 toughness down via encounter modifiers); startCombat hands off to the Combat scene with onWin → aftermath dialogue.",
+  "start": "entry",
+  "nodes": {
+    "entry": {
+      "text": "(routing)",
+      "redirects": [
+        {
+          "conditions": [
+            {
+              "type": "flag",
+              "flag": "gate-open"
+            }
+          ],
+          "node": "threshold"
+        },
+        {
+          "node": "sealed"
+        }
+      ]
+    },
+    "sealed": {
+      "text": "The mill door stands at the end of the gated path. From here you can only study it through the bronze lattice — the bell-gate must be opened first.",
+      "options": [
+        {
+          "text": "Step back.",
+          "effects": [
+            {
+              "type": "end"
+            }
+          ]
+        }
+      ]
+    },
+    "threshold": {
+      "speaker": "The Mill Door",
+      "text": "The mill door hangs ajar on its famous unoiled hinge. Inside: flour-dust hanging dead-still in the slatted light, millstones stopped mid-grind — and up in the rafters, folded like a grey banner over the main beam, something tall is listening. It has been listening for a month. The silence in there isn't empty; it's *kept*, hoarded, stacked to the roof-tree like grain.\n\nYour party gathers at the threshold. How do you go in?",
+      "voices": [
+        {
+          "skill": "lore",
+          "dc": 5,
+          "text": "A Husk keeps the shape of its final duty — this one was made of a bell-keeper, and it guards what it stole. It will dread the two things every Hush-thing dreads: living fire, and the true note. Open with those, and its grey hide will crack like old varnish."
+        },
+        {
+          "skill": "stealth",
+          "dc": 4,
+          "text": "The rafters tick as the day's heat leaves them — one slow creak every few breaths. Time your steps to that rhythm and even this hoarded silence won't betray you."
+        },
+        {
+          "skill": "insight",
+          "dc": 4,
+          "text": "It hasn't attacked the town. A month in a defensible roost, and it only *keeps*. Whatever drives it isn't hunger — it's duty, curdled. Strike fast and it may never get to remember what else it was told to do."
+        }
+      ],
+      "options": [
+        {
+          "text": "Strike the doorframe and walk in holding the bell's true note — let it meet the one sound it cannot keep.",
+          "conditions": [
+            {
+              "type": "hasAbility",
+              "ability": "resonant-word"
+            }
+          ],
+          "next": "chord"
+        },
+        {
+          "text": "Slip in along the wall between the rafter-creaks and close the distance before it unfolds.",
+          "check": {
+            "skill": "stealth",
+            "dc": "medium",
+            "success": "ambush",
+            "failure": "noticed"
+          }
+        },
+        {
+          "text": "Push the door wide and walk in loud, weapon loose. Let it know the quiet's over.",
+          "next": "facing"
+        }
+      ]
+    },
+    "chord": {
+      "speaker": "The Mill Door",
+      "text": "Knuckles to the doorframe — one, two — and the note rises with you as you step through, bell-true, filling the millhouse like light filling a cellar. The hoarded silence recoils to the corners. Up on the beam the grey banner convulses, hide splitting in hairline cracks along its folded edges, and when it pours down onto the millstone floor it comes *flinching*, already hurt, already hating the sound of you.\n\nGood. Let it hate the sound of you.",
+      "effects": [
+        {
+          "type": "setFlag",
+          "flag": "sentinel-weakened"
+        }
+      ],
+      "options": [
+        {
+          "text": "Hold the note, and meet it.",
+          "effects": [
+            {
+              "type": "startCombat",
+              "encounter": "mill-roost",
+              "onWin": "sentinel-aftermath"
+            }
+          ]
+        }
+      ]
+    },
+    "ambush": {
+      "speaker": "The Mill Door",
+      "text": "Creak — step. Creak — step. You cross the millhouse floor inside the building's own slow heartbeat, party strung behind you in your footprints, until you are standing under the main beam, close enough to count the bell-keeper's buttons fossilized in its grey hide. You set your feet. You choose your spot.\n\nThe first blow lands before it knows the quiet has been trespassed — something in its folded frame cracks like lake ice, and it comes down off the beam lopsided and ringing wrong.",
+      "effects": [
+        {
+          "type": "setFlag",
+          "flag": "sentinel-weakened"
+        }
+      ],
+      "options": [
+        {
+          "text": "Press the advantage.",
+          "effects": [
+            {
+              "type": "startCombat",
+              "encounter": "mill-roost",
+              "onWin": "sentinel-aftermath"
+            }
+          ]
+        }
+      ]
+    },
+    "noticed": {
+      "speaker": "The Mill Door",
+      "text": "Creak — step. Creak — st— a board your eye missed declares your presence to the rafters at delighted volume.\n\nThe grey banner unfolds all at once, faster than anything that patient has a right to move, and drops between you and the door with its long head tilted — *listening* at you, the way Tam said it listened at his lattice. So much for the quiet approach. The loud one is now compulsory.",
+      "options": [
+        {
+          "text": "Stand your ground.",
+          "effects": [
+            {
+              "type": "startCombat",
+              "encounter": "mill-roost",
+              "onWin": "sentinel-aftermath"
+            }
+          ]
+        }
+      ]
+    },
+    "facing": {
+      "speaker": "The Mill Door",
+      "text": "You put your boot to the door and let the unoiled hinge do its work — a long, defiant, wonderful SQUEAL, a month of the town's swallowed noise paid back in one note. The flour-dust swirls. The light shifts.\n\nAnd the grey banner on the beam unfolds, joint by joint by joint, down onto the millstone floor: tall as the door, patient as winter, the buttons of a dead bell-keeper's coat still traced across its chest. It does not roar. It *hushes* — and the room's edges go cotton-dim as the fight begins.",
+      "options": [
+        {
+          "text": "Let the quiet end here.",
+          "effects": [
+            {
+              "type": "startCombat",
+              "encounter": "mill-roost",
+              "onWin": "sentinel-aftermath"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

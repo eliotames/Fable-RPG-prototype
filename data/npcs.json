@@ -1,0 +1,45 @@
+{
+  "//": "NPCs placed on maps via object-layer entries (kind=npc, ref=<id>). 'dialogue' is the dialogue file id opened on interaction. glyph/color style the map token.",
+  "npcs": [
+    {
+      "id": "senna",
+      "name": "Elder Senna",
+      "dialogue": "elder-senna",
+      "glyph": "S",
+      "color": "#c9a0dc",
+      "desc": "Keeper of Greyreach's charter and its last working voice of authority."
+    },
+    {
+      "id": "tam",
+      "name": "Old Tam",
+      "dialogue": "old-tam",
+      "glyph": "T",
+      "color": "#8aa88a",
+      "desc": "Gatekeeper of the bell-gate, professionally suspicious of weather."
+    },
+    {
+      "id": "maren",
+      "name": "Maren Vael",
+      "dialogue": "maren-vael",
+      "glyph": "M",
+      "color": "#d88a6a",
+      "desc": "Quarry forewoman, out of a quarry. Arms like winch-cable."
+    },
+    {
+      "id": "issi",
+      "name": "Issi",
+      "dialogue": "issi",
+      "glyph": "I",
+      "color": "#a0b8dc",
+      "desc": "A Hollowed wanderer who hums songs with no sound in them."
+    },
+    {
+      "id": "pell",
+      "name": "Pell",
+      "dialogue": "pell",
+      "glyph": "P",
+      "color": "#d8c06a",
+      "desc": "Greyreach's only remaining merchant, optimist, and gossip."
+    }
+  ]
+}

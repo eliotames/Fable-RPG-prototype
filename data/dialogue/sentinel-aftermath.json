@@ -1,0 +1,167 @@
+{
+  "id": "sentinel-aftermath",
+  "//": "Post-victory resolution, auto-launched by combat (startCombat onWin). Demonstrates: flag-reactive content (senna-truth unlocks the Doran scene; companion flags color the epilogue) and a final choice with two endSlice outcomes.",
+  "start": "fall",
+  "nodes": {
+    "fall": {
+      "speaker": "The Mill",
+      "text": "The Sentinel comes apart the way a chord resolves — not violence but release, grey hide sloughing into drifts of ash-soft quiet that sigh across the millstones and are gone. A month of stolen sound spills out of it all at once: cart wheels, dusk bells, dogs, gossip, rain — a whole season of Greyreach pouring back into the rafters, jumbled and joyous and deafening.\n\nWhen it fades, one thing remains on the floor where the creature stood: the great bell's clapper, wrapped in grey wax gone brittle — and the wax is cracked now, and through the cracks the bronze is still, faintly, trying to ring. The bell-heart. The thing it died keeping.",
+      "voices": [
+        {
+          "skill": "lore",
+          "dc": 5,
+          "text": "A focus. The Hush wrapped this town's strongest sound around its keeper to anchor the silence here. Shatter it, and the anchor breaks with it. Ring it true again, and the town holds the line itself — slower, but theirs."
+        },
+        {
+          "skill": "insight",
+          "dc": 4,
+          "text": "It carried this to the rafters instead of destroying it. A bell-keeper's last duty, kept wrong for a month. Even curdled, it was trying to protect the thing it loved."
+        }
+      ],
+      "options": [
+        {
+          "text": "Search the ash for the bell-keeper. For Doran.",
+          "conditions": [
+            {
+              "type": "flag",
+              "flag": "senna-truth"
+            },
+            {
+              "type": "notFlag",
+              "flag": "found-doran"
+            }
+          ],
+          "next": "doran"
+        },
+        {
+          "text": "Take up the bell-heart and decide its fate.",
+          "next": "choice"
+        }
+      ]
+    },
+    "doran": {
+      "speaker": "The Mill",
+      "text": "You rake through the settling drifts. No bones — the Hush doesn't leave those — but near where its chest had been you find a miller's signet ring on a worn leather cord, and pressed into the brittle wax beside it, the clean print of a thumb that must have held the wrapped clapper close, all month, the way a man holds the last warm thing in a cold house.\n\nDoran Vael kept his town's bell to the end of himself and past it. Senna was wrong about one thing: there was something left of her brother in there. It was the part that held on.",
+      "effects": [
+        {
+          "type": "setFlag",
+          "flag": "found-doran"
+        }
+      ],
+      "options": [
+        {
+          "text": "Pocket the ring for Senna, and take up the bell-heart.",
+          "next": "choice"
+        }
+      ]
+    },
+    "choice": {
+      "speaker": "The Bell-Heart",
+      "text": "The bronze hums against your palms, patient as its keeper was. Two roads from here, and your companions wait on your word.\n\nShatter it on the millstone, and the anchored silence breaks with it — sudden, total, a wound cauterized. Or carry it back whole, to be cleaned and re-hung, so Greyreach can ring its own dusk again — the slow cure, the kept duty.",
+      "options": [
+        {
+          "text": "Shatter it. Burn the sickness out of this valley now.",
+          "next": "ending-shatter"
+        },
+        {
+          "text": "Carry it home. Greyreach rings its own bell from now on.",
+          "conditions": [
+            {
+              "type": "notFlag",
+              "flag": "found-doran"
+            }
+          ],
+          "next": "ending-carry"
+        },
+        {
+          "text": "Carry it home — the bell, and Doran's ring with it. The duty goes back to the family.",
+          "conditions": [
+            {
+              "type": "flag",
+              "flag": "found-doran"
+            }
+          ],
+          "next": "ending-carry-doran"
+        }
+      ]
+    },
+    "ending-shatter": {
+      "speaker": "The Mill",
+      "text": "You bring the bell-heart down on the millstone and it does not break so much as *finish* — one note, the true one, struck so hard it has edges, rolling out of the mill and across the crossing and up into the grey hills like a tide going out. Where it passes, the Hush simply lets go: the west fields shiver back to green, the quarry coughs up a month of echoes in one long rockslide rumble, and every dog in the village files a complaint at once.\n\nIt cost the bell. The tower will stand empty, and dusk will need a new signal. But silence has been thrown out of this valley on its ear, and it knows better than to come back soon.",
+      "effects": [
+        {
+          "type": "completeQuest",
+          "quest": "a-quiet-toll"
+        },
+        {
+          "type": "healParty",
+          "fraction": 1
+        }
+      ],
+      "options": [
+        {
+          "text": "(So ends the slice — see how Greyreach fares.)",
+          "effects": [
+            {
+              "type": "endSlice",
+              "outcome": "win",
+              "epilogue": "You broke the bell to break the silence — sudden, total, a wound cauterized.\n\nGreyreach Crossing wakes loud the next morning and stays that way: the mill wheel turning, the quarry echoing, Pell narrating. Senna enters one line in the ledger — 'toll paid' — and closes it. On the empty tower, someone has hung a lantern where the bell was, and at dusk old Tam lights it, and hums."
+            }
+          ]
+        }
+      ]
+    },
+    "ending-carry": {
+      "speaker": "The Mill",
+      "text": "You wrap the bell-heart in your cloak and carry it down the mill path like a sleeping child. Tam sees what you're holding and takes his hat off — the gesture of a man at a homecoming, not a funeral. It takes the town two days, a borrowed block-and-tackle, and every able back left in Greyreach to clean the wax away and hang the clapper home.\n\nAt dusk, the bell rings. The note rolls out over the crossing and the grey line in the west field stops, considers, and gives back its first three paces of grass. The slow cure. The kept duty. Greyreach holds its own line now.",
+      "effects": [
+        {
+          "type": "completeQuest",
+          "quest": "a-quiet-toll"
+        },
+        {
+          "type": "healParty",
+          "fraction": 1
+        }
+      ],
+      "options": [
+        {
+          "text": "(So ends the slice — see how Greyreach fares.)",
+          "effects": [
+            {
+              "type": "endSlice",
+              "outcome": "win",
+              "epilogue": "You carried the bell-heart home, and Greyreach rings its own dusk again.\n\nThe Hush gives ground a few paces a day, grudging every step. The mill wheel turns. Pell raises his prices back to merely unreasonable. And every evening at the first stroke of the bell, the whole town goes quiet for a heartbeat — on purpose, together, just to enjoy choosing it."
+            }
+          ]
+        }
+      ]
+    },
+    "ending-carry-doran": {
+      "speaker": "The Mill",
+      "text": "You carry the bell-heart down the path, and Doran's ring with it. Senna meets you at the gate — word runs fast in a town relearning noise — and when you put the ring in her hand she holds it the way her brother held the clapper: like the last warm thing in a cold house. \"He kept it,\" is all she says. It is enough.\n\nThe bell goes home to its tower two days later, scrubbed bright, and the first hand on the rope is the elder's. The note that rolls out over the crossing at dusk is struck by a Vael, as it always was. Some duties, it turns out, can be handed back.",
+      "effects": [
+        {
+          "type": "completeQuest",
+          "quest": "a-quiet-toll"
+        },
+        {
+          "type": "healParty",
+          "fraction": 1
+        }
+      ],
+      "options": [
+        {
+          "text": "(So ends the slice — see how Greyreach fares.)",
+          "effects": [
+            {
+              "type": "endSlice",
+              "outcome": "win",
+              "epilogue": "You brought home the bell, and the truth, and what was left of Doran Vael.\n\nThe bell rings each dusk under Senna's hand, and the Hush gives ground pace by grudging pace. In the ledger, where the town's debts are kept, the elder has written one line in her careful hand: 'Paid in full, with interest, by strangers who waited to listen.' The mill wheel turns. The quarry echoes. Greyreach Crossing is loud, and intends to remain so."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

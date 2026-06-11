@@ -1,0 +1,823 @@
+{
+ "type": "map",
+ "version": "1.10",
+ "tiledversion": "1.10.2",
+ "orientation": "isometric",
+ "renderorder": "right-down",
+ "infinite": false,
+ "width": 18,
+ "height": 14,
+ "tilewidth": 64,
+ "tileheight": 32,
+ "nextlayerid": 3,
+ "nextobjectid": 13,
+ "properties": [
+  {
+   "name": "displayName",
+   "type": "string",
+   "value": "Greyreach Crossing"
+  },
+  {
+   "name": "blockedTiles",
+   "type": "string",
+   "value": "3,5,6"
+  }
+ ],
+ "tilesets": [
+  {
+   "firstgid": 1,
+   "name": "tiles",
+   "tilewidth": 64,
+   "tileheight": 32,
+   "tilecount": 8,
+   "columns": 8,
+   "margin": 0,
+   "spacing": 0,
+   "image": "tiles.png",
+   "imagewidth": 512,
+   "imageheight": 32
+  }
+ ],
+ "layers": [
+  {
+   "id": 1,
+   "type": "tilelayer",
+   "name": "ground",
+   "width": 18,
+   "height": 14,
+   "x": 0,
+   "y": 0,
+   "opacity": 1,
+   "visible": true,
+   "data": [
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    4,
+    4,
+    4,
+    4,
+    4,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    4,
+    4,
+    4,
+    4,
+    4,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    4,
+    4,
+    4,
+    4,
+    4,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    4,
+    4,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    6,
+    6,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    6,
+    6,
+    7,
+    7,
+    7,
+    7,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    6,
+    6,
+    7,
+    7,
+    7,
+    7,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    1,
+    6,
+    6,
+    7,
+    7,
+    7,
+    7,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    1,
+    6,
+    6,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    1,
+    6,
+    6,
+    1,
+    1,
+    1,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    6,
+    6,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    6,
+    6,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    6,
+    6,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    6,
+    6,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  {
+   "id": 2,
+   "type": "objectgroup",
+   "name": "spawns",
+   "x": 0,
+   "y": 0,
+   "opacity": 1,
+   "visible": true,
+   "draworder": "topdown",
+   "objects": [
+    {
+     "id": 1,
+     "name": "player-start",
+     "type": "spawn",
+     "rotation": 0,
+     "visible": true,
+     "x": -128,
+     "y": 320,
+     "width": 0,
+     "height": 0,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "spawn"
+      },
+      {
+       "name": "tx",
+       "type": "int",
+       "value": 8
+      },
+      {
+       "name": "ty",
+       "type": "int",
+       "value": 12
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "name": "senna",
+     "type": "npc",
+     "rotation": 0,
+     "visible": true,
+     "x": -96,
+     "y": 240,
+     "width": 0,
+     "height": 0,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "npc"
+      },
+      {
+       "name": "tx",
+       "type": "int",
+       "value": 6
+      },
+      {
+       "name": "ty",
+       "type": "int",
+       "value": 9
+      },
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "senna"
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "name": "tam",
+     "type": "npc",
+     "rotation": 0,
+     "visible": true,
+     "x": 96,
+     "y": 176,
+     "width": 0,
+     "height": 0,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "npc"
+      },
+      {
+       "name": "tx",
+       "type": "int",
+       "value": 7
+      },
+      {
+       "name": "ty",
+       "type": "int",
+       "value": 4
+      },
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "tam"
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "name": "maren",
+     "type": "npc",
+     "rotation": 0,
+     "visible": true,
+     "x": -128,
+     "y": 160,
+     "width": 0,
+     "height": 0,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "npc"
+      },
+      {
+       "name": "tx",
+       "type": "int",
+       "value": 3
+      },
+      {
+       "name": "ty",
+       "type": "int",
+       "value": 7
+      },
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "maren"
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "name": "issi",
+     "type": "npc",
+     "rotation": 0,
+     "visible": true,
+     "x": 160,
+     "y": 368,
+     "width": 0,
+     "height": 0,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "npc"
+      },
+      {
+       "name": "tx",
+       "type": "int",
+       "value": 14
+      },
+      {
+       "name": "ty",
+       "type": "int",
+       "value": 9
+      },
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "issi"
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "name": "pell",
+     "type": "npc",
+     "rotation": 0,
+     "visible": true,
+     "x": 64,
+     "y": 320,
+     "width": 0,
+     "height": 0,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "npc"
+      },
+      {
+       "name": "tx",
+       "type": "int",
+       "value": 11
+      },
+      {
+       "name": "ty",
+       "type": "int",
+       "value": 9
+      },
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "pell"
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "name": "notice-board",
+     "type": "object",
+     "rotation": 0,
+     "visible": true,
+     "x": -64,
+     "y": 320,
+     "width": 0,
+     "height": 0,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "object"
+      },
+      {
+       "name": "tx",
+       "type": "int",
+       "value": 9
+      },
+      {
+       "name": "ty",
+       "type": "int",
+       "value": 11
+      },
+      {
+       "name": "dialogue",
+       "type": "string",
+       "value": "notice-board"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Read the notice board"
+      },
+      {
+       "name": "glyph",
+       "type": "string",
+       "value": "!"
+      },
+      {
+       "name": "color",
+       "type": "string",
+       "value": "#d8c06a"
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "name": "supply-cache",
+     "type": "object",
+     "rotation": 0,
+     "visible": true,
+     "x": 256,
+     "y": 288,
+     "width": 0,
+     "height": 0,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "object"
+      },
+      {
+       "name": "tx",
+       "type": "int",
+       "value": 13
+      },
+      {
+       "name": "ty",
+       "type": "int",
+       "value": 5
+      },
+      {
+       "name": "dialogue",
+       "type": "string",
+       "value": "supply-cache"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Millwright's crates"
+      },
+      {
+       "name": "glyph",
+       "type": "string",
+       "value": "▣"
+      },
+      {
+       "name": "color",
+       "type": "string",
+       "value": "#a8845c"
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "name": "hush-edge",
+     "type": "object",
+     "rotation": 0,
+     "visible": true,
+     "x": -256,
+     "y": 192,
+     "width": 0,
+     "height": 0,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "object"
+      },
+      {
+       "name": "tx",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "ty",
+       "type": "int",
+       "value": 10
+      },
+      {
+       "name": "dialogue",
+       "type": "string",
+       "value": "hush-edge"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "Study the Hush's edge"
+      },
+      {
+       "name": "glyph",
+       "type": "string",
+       "value": "≈"
+      },
+      {
+       "name": "color",
+       "type": "string",
+       "value": "#8fb8d8"
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "name": "mill-door",
+     "type": "object",
+     "rotation": 0,
+     "visible": true,
+     "x": 256,
+     "y": 160,
+     "width": 0,
+     "height": 0,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "object"
+      },
+      {
+       "name": "tx",
+       "type": "int",
+       "value": 9
+      },
+      {
+       "name": "ty",
+       "type": "int",
+       "value": 1
+      },
+      {
+       "name": "dialogue",
+       "type": "string",
+       "value": "mill-door"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "The mill door"
+      },
+      {
+       "name": "glyph",
+       "type": "string",
+       "value": "⌂"
+      },
+      {
+       "name": "color",
+       "type": "string",
+       "value": "#c4a484"
+      }
+     ]
+    },
+    {
+     "id": 11,
+     "name": "bell-gate-west",
+     "type": "barrier",
+     "rotation": 0,
+     "visible": true,
+     "x": 160,
+     "y": 176,
+     "width": 0,
+     "height": 0,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "barrier"
+      },
+      {
+       "name": "tx",
+       "type": "int",
+       "value": 8
+      },
+      {
+       "name": "ty",
+       "type": "int",
+       "value": 3
+      },
+      {
+       "name": "dialogue",
+       "type": "string",
+       "value": "bell-gate"
+      },
+      {
+       "name": "flag",
+       "type": "string",
+       "value": "gate-open"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "The bell-gate"
+      },
+      {
+       "name": "glyph",
+       "type": "string",
+       "value": "♯"
+      },
+      {
+       "name": "color",
+       "type": "string",
+       "value": "#7a9c8a"
+      }
+     ]
+    },
+    {
+     "id": 12,
+     "name": "bell-gate-east",
+     "type": "barrier",
+     "rotation": 0,
+     "visible": true,
+     "x": 192,
+     "y": 192,
+     "width": 0,
+     "height": 0,
+     "point": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "barrier"
+      },
+      {
+       "name": "tx",
+       "type": "int",
+       "value": 9
+      },
+      {
+       "name": "ty",
+       "type": "int",
+       "value": 3
+      },
+      {
+       "name": "dialogue",
+       "type": "string",
+       "value": "bell-gate"
+      },
+      {
+       "name": "flag",
+       "type": "string",
+       "value": "gate-open"
+      },
+      {
+       "name": "label",
+       "type": "string",
+       "value": "The bell-gate"
+      },
+      {
+       "name": "glyph",
+       "type": "string",
+       "value": "♯"
+      },
+      {
+       "name": "color",
+       "type": "string",
+       "value": "#7a9c8a"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,104 @@
+{
+  "id": "bell-gate",
+  "//": "THE multi-solution puzzle. Three valid solutions by party build: (1) Force check on the winch — failure permanently removes that route; (2) item + Tinkering check, retryable; (3) resonance ability (Chanter player or Issi in party), no roll. Opening sets gate-open and advances the quest.",
+  "start": "entry",
+  "nodes": {
+    "entry": {
+      "text": "(routing)",
+      "redirects": [
+        { "conditions": [{ "type": "flag", "flag": "gate-open" }], "node": "open" },
+        { "node": "closed" }
+      ]
+    },
+
+    "closed": {
+      "speaker": "The Bell-Gate",
+      "text": "A lattice of green-grey bronze spans the mill path, its bars cast in the shape of a frozen chord — the old craft, sound-keyed: this gate opens for one thing only, the true note of Greyreach's great bell. Above it the bell hangs in its squat tower, gutted. No clapper. The cup packed with dull grey wax that seems to drink the daylight.\n\nBeside the gate: a winch furred orange with rust, and the millwright's festival rig — a pump-driven hammer aimed at the bell's shoulder, its gear train interrupted by one conspicuously empty spindle.",
+      "voices": [
+        { "skill": "tinkering", "dc": 4, "text": "The pump-hammer is sound — packing intact, throw-arm true. It wants exactly one drive cog, bronze, a hand wide. Find that, and this machine will ring the bell wax or no wax: the strike plate is on the OUTSIDE." },
+        { "skill": "force", "dc": 4, "text": "Rusted, not locked. The pawl's seized, but the drum would still turn for someone with the shoulders to insist. Rust loses arguments." },
+        { "skill": "lore", "dc": 5, "text": "Sound-keyed bronze listens for pitch, not volume. A held note at the bell's true pitch — sung, struck, anything — would fool the lattice entirely. The smiths called it 'the polite way in.'" }
+      ],
+      "options": [
+        {
+          "text": "Set your shoulders against the winch and make the rust regret itself.",
+          "conditions": [{ "type": "notFlag", "flag": "winch-snapped" }],
+          "check": { "skill": "force", "dc": "hard", "success": "forced", "failure": "snapped" }
+        },
+        {
+          "text": "Fit the bronze mill-cog onto the empty spindle and rig the pump-hammer to strike the bell.",
+          "conditions": [{ "type": "hasItem", "item": "mill-cog" }],
+          "check": { "skill": "tinkering", "dc": "medium", "success": "rigged", "failure": "misfire" }
+        },
+        {
+          "text": "Stand before the lattice and sing the bell's note yourself — the old way, the polite way.",
+          "conditions": [{ "type": "hasAbility", "ability": "resonant-word" }],
+          "next": "sung"
+        },
+        { "text": "Step back from the gate.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "forced": {
+      "speaker": "The Bell-Gate",
+      "text": "You take the winch arm in both hands, plant a boot on the post, and explain the situation to the rust. The drum shrieks — an outrageous, glorious, ear-splitting shriek, the loudest sound this town has heard in a month — and turns. Tooth by tooth, the bronze chord unweaves itself and the lattice grinds up into the arch.\n\nSomewhere behind you, you distinctly hear Old Tam say \"hm.\"",
+      "effects": [
+        { "type": "setFlag", "flag": "gate-open" },
+        { "type": "advanceQuest", "quest": "a-quiet-toll", "stage": "the-roost" }
+      ],
+      "options": [
+        { "text": "Roll your shoulders. The mill path is open.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "snapped": {
+      "speaker": "The Bell-Gate",
+      "text": "The rust argues back. The winch arm bends, groans — and shears off at the collar, dumping you into the mud with three feet of useless iron in your hands. The drum is hopelessly seized now; no shoulder in the world will turn a winch with no handle.\n\nThe gate will have to be rung open, by machine or by voice. The wreckage, at least, made a satisfying noise.",
+      "effects": [{ "type": "setFlag", "flag": "winch-snapped" }],
+      "options": [
+        { "text": "Toss the broken arm aside and reconsider.", "next": "closed" }
+      ]
+    },
+
+    "rigged": {
+      "speaker": "The Bell-Gate",
+      "text": "The cog seats with a click like a knuckle popping. You prime the pump — once, twice — trip the catch, and the hammer swings its whole pendulum heart against the bell's outer shoulder.\n\nThe bell, gutted and gagged, still remembers its one word. BOMMM. The note rolls down the path and the wax in the cup actually shivers, sloughing at the edges — and the lattice hears its master's voice and unweaves, bar by bar, into the arch. From the village behind you comes the sound of every remaining head turning at once.",
+      "effects": [
+        { "type": "setFlag", "flag": "gate-open" },
+        { "type": "advanceQuest", "quest": "a-quiet-toll", "stage": "the-roost" }
+      ],
+      "options": [
+        { "text": "Pat the millwright's machine. Good rig.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "misfire": {
+      "speaker": "The Bell-Gate",
+      "text": "The cog seats; the hammer swings; your timing on the catch is a half-beat proud. The hammer clips the bell's rim — a flat, embarrassed CLONK, a sound like a dropped pot — and the lattice doesn't so much as quiver. Sound-keyed bronze is a pitiless music critic.\n\nThe rig resets itself with a wheeze. Nothing's broken. You can time the catch again.",
+      "options": [
+        { "text": "Re-prime the pump and try the catch again.", "next": "closed" },
+        { "text": "Step back and think.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "sung": {
+      "speaker": "The Bell-Gate",
+      "text": "You find the pitch the way a key finds a lock — one note, held, bell-true, swelling from somewhere under the breastbone until the air itself leans in. It is the first deliberate music this crossing has heard in a month, and the grey wax above you visibly cringes from it.\n\nThe lattice doesn't grind. It *unfolds* — courteous, even eager, like a door opened by a butler who has been terribly bored. The old smiths were right: this was always the polite way in.",
+      "effects": [
+        { "type": "setFlag", "flag": "gate-open" },
+        { "type": "advanceQuest", "quest": "a-quiet-toll", "stage": "the-roost" }
+      ],
+      "options": [
+        { "text": "Let the note fade, and walk through.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "open": {
+      "speaker": "The Bell-Gate",
+      "text": "The lattice stands folded into the arch, bronze bars settled like a chord resolved. The mill path lies open, and the quiet beyond it has a held-breath quality you can feel against your teeth.",
+      "options": [
+        { "text": "Leave it be.", "effects": [{ "type": "end" }] }
+      ]
+    }
+  }
+}

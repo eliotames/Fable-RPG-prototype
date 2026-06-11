@@ -1,0 +1,60 @@
+{
+  "//": "Enemies and encounters. weaknesses/resists use combat-tuning elements. toughness = Break gauge: weakness hits chip it by the ability's breakPower; at 0 the enemy Breaks (loses its turn, takes bonus + amplified damage). Encounter 'modifiers' let story flags pre-weaken or scout enemies — see the mill confrontation dialogue.",
+  "enemies": [
+    {
+      "id": "husk-sentinel",
+      "name": "Husk Sentinel",
+      "desc": "What's left when the Hush finishes with a bell-keeper: tall, grey, hollow as a drum that will never be struck again. It guards the silence it died making.",
+      "maxHp": 72,
+      "attack": 5,
+      "defense": 4,
+      "speed": 4,
+      "toughness": 5,
+      "weaknesses": ["resonance", "ember"],
+      "resists": ["physical"],
+      "abilities": ["hush-touch", "smothering-veil"],
+      "ai": {
+        "targeting": "random",
+        "moves": [
+          { "ability": "hush-touch", "weight": 3 },
+          { "ability": "smothering-veil", "weight": 2 }
+        ]
+      },
+      "loreNote": "Husks keep the shape of their last duty. This one still listens for a bell."
+    },
+    {
+      "id": "mute-wisp",
+      "name": "Mute Wisp",
+      "desc": "A scrap of swallowed sound given teeth — someone's last shout, still looking for a way out.",
+      "maxHp": 18,
+      "attack": 3,
+      "defense": 1,
+      "speed": 7,
+      "toughness": 2,
+      "weaknesses": ["ember", "air"],
+      "resists": [],
+      "abilities": ["wisp-drain"],
+      "ai": {
+        "targeting": "weakest",
+        "moves": [
+          { "ability": "wisp-drain", "weight": 1 }
+        ]
+      },
+      "loreNote": "Wisps scatter before moving air and burn like dry leaves."
+    }
+  ],
+  "encounters": [
+    {
+      "id": "mill-roost",
+      "name": "The Roost in the Mill",
+      "intro": "The millstones stand stopped mid-grind. Above them, folded into the rafters like a grey banner, the Husk Sentinel unfolds — and two scraps of stolen sound peel away from its shoulders.",
+      "enemies": ["husk-sentinel", "mute-wisp", "mute-wisp"],
+      "modifiers": [
+        { "//": "set by the confrontation dialogue: a resonant note or a successful ambush cracks its guard before the fight",
+          "flag": "sentinel-weakened", "enemy": "husk-sentinel", "toughnessDelta": -2 },
+        { "//": "set by hush lore learned at the hush-edge or from Old Tam",
+          "flag": "hush-lore", "enemy": "husk-sentinel", "revealWeaknesses": true }
+      ]
+    }
+  ]
+}

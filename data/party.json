@@ -1,0 +1,21 @@
+{
+  "//": "Recruitable party members. They are built through the same CharacterFactory as the player: race + class + attributes → skills, stats, abilities. Recruit them with the {\"type\":\"recruit\"} dialogue effect.",
+  "partyMembers": [
+    {
+      "id": "maren",
+      "name": "Maren Vael",
+      "race": "cragfolk",
+      "class": "warden",
+      "attributes": { "brawn": 5, "finesse": 2, "intellect": 2, "presence": 3 },
+      "bio": "Forewoman of the Greyreach quarry until the quarry stopped echoing back. She has opinions about that, and a hammer."
+    },
+    {
+      "id": "issi",
+      "name": "Issi",
+      "race": "hollowed",
+      "class": "chanter",
+      "attributes": { "brawn": 2, "finesse": 3, "intellect": 3, "presence": 4 },
+      "bio": "The Hush took her village and gave her back. She remembers every song it swallowed, and means to return them all."
+    }
+  ]
+}

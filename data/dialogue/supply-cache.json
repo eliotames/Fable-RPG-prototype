@@ -1,0 +1,78 @@
+{
+  "id": "supply-cache",
+  "//": "Container-as-dialogue: loot is just addItem effects gated by flags. A passive Sleight voice reveals a hidden compartment with bonus loot — environment reacting to skills.",
+  "start": "entry",
+  "nodes": {
+    "entry": {
+      "text": "(routing)",
+      "redirects": [
+        { "conditions": [{ "type": "flag", "flag": "cache-hidden-found" }], "node": "empty" },
+        { "conditions": [{ "type": "flag", "flag": "cache-looted" }], "node": "looted" },
+        { "node": "closed" }
+      ]
+    },
+
+    "closed": {
+      "text": "Three crates of millwright's salvage slump against the old wall, stenciled with the Greyreach wheel-mark and sealed with more nails than faith. Pell's crowbar lies defeated on top of them.",
+      "voices": [
+        { "skill": "sleight", "dc": 4, "text": "The third crate's base sits a finger too high off the ground. False bottom. Millwrights and smugglers used the same joiners in this county." }
+      ],
+      "options": [
+        { "text": "Pry the crates open.", "next": "opened" },
+        { "text": "Leave them.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "opened": {
+      "text": "The nails give way with a screech Pell probably heard with his heart. Inside, packed in straw: a heavy bronze drive cog stamped with the millwright's mark, two flasks of banked quarry-fire, and a draught that fizzes when you tilt it.",
+      "effects": [
+        { "type": "setFlag", "flag": "cache-looted" },
+        { "type": "addItem", "item": "mill-cog" },
+        { "type": "addItem", "item": "ember-flask", "qty": 2 },
+        { "type": "addItem", "item": "hale-draught", "qty": 1 }
+      ],
+      "options": [
+        {
+          "text": "Lift the third crate's false bottom.",
+          "conditions": [{ "type": "skillAtLeast", "skill": "sleight", "value": 4 }],
+          "next": "hidden"
+        },
+        { "text": "Take the salvage and go.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "looted": {
+      "text": "The opened crates sit in their straw. You've had the honest layer.",
+      "voices": [
+        { "skill": "sleight", "dc": 4, "text": "That third crate still rides a finger high. The false bottom is right there, being smug about it." }
+      ],
+      "options": [
+        {
+          "text": "Lift the third crate's false bottom.",
+          "conditions": [{ "type": "skillAtLeast", "skill": "sleight", "value": 4 }],
+          "next": "hidden"
+        },
+        { "text": "Leave them.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "hidden": {
+      "text": "Your fingers find the joiner's catch on the first try. The panel lifts on a shallow tray lined with felt: one more flask of quarry-fire, and a tarnished locket holding a sliver of bell-bronze that hums — very softly, very deliberately — against your palm. It hums a little louder when you point it north, toward the mill.",
+      "effects": [
+        { "type": "setFlag", "flag": "cache-hidden-found" },
+        { "type": "addItem", "item": "ember-flask", "qty": 1 },
+        { "type": "addItem", "item": "chimewright-locket" }
+      ],
+      "options": [
+        { "text": "Pocket the smuggler's tithe.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "empty": {
+      "text": "Straw, sprung nails, and an open false bottom. Pell's 'half-shares' have been thoroughly optimized.",
+      "options": [
+        { "text": "Move along.", "effects": [{ "type": "end" }] }
+      ]
+    }
+  }
+}

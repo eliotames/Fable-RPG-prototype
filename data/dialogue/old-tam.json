@@ -1,0 +1,86 @@
+{
+  "id": "old-tam",
+  "//": "Hint NPC for the gate puzzle. Demonstrates: an active Insight check that grants the hush-lore flag (which scouts the boss via encounter modifiers).",
+  "start": "entry",
+  "nodes": {
+    "entry": {
+      "text": "(routing)",
+      "redirects": [
+        { "conditions": [{ "type": "flag", "flag": "gate-open" }], "node": "after" },
+        { "node": "intro" }
+      ]
+    },
+
+    "intro": {
+      "speaker": "Old Tam",
+      "text": "The gatekeeper sits on a stool beside the bell-gate with the unhurried menace of a man who has outlived three winters everyone called the last one. A lantern burns by his boot in broad daylight. He doesn't look up.\n\n\"Gate's shut,\" he says, to the air slightly left of you. \"Bell's mute. Path's closed. Anything else I can do for you?\"",
+      "voices": [
+        { "skill": "insight", "dc": 3, "text": "He keeps the lantern lit at noon, and his eyes keep flicking to the bell tower like it owes him money. This man has seen something and is sitting watch on it." }
+      ],
+      "options": [
+        { "text": "\"What happened to the bell?\"", "next": "bell-story" },
+        { "text": "\"How does the gate open, then?\"", "next": "gate-help" },
+        {
+          "text": "\"You keep a lantern lit at midday, Tam. You've seen what's in that mill, haven't you?\"",
+          "check": { "skill": "insight", "dc": "medium", "success": "seen", "failure": "clams" }
+        },
+        { "text": "Leave him to his watch.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "bell-story": {
+      "speaker": "Old Tam",
+      "text": "\"Bell rang every dusk for sixty years. Kept the bad weather honest, my gran said — and lately, kept the Hush off the town. Then one night between my rounds, somebody — somethin' — climbed that tower, took the clapper clean out, and packed the cup with grey wax. No ladder marks. No footprints. Three days after, the mill goes quiet, and Doran with it.\"\n\nHe spits, accurately, at the gatepost. \"A burglar what steals the sound and leaves the bronze. You tell me what kind of weather that is.\"",
+      "options": [
+        { "text": "\"So how do I get through your gate?\"", "next": "gate-help" },
+        { "text": "\"Grim weather indeed. Keep your lantern lit.\"", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "gate-help": {
+      "speaker": "Old Tam",
+      "text": "\"Gate's bell-keyed: lattice only draws back for the great bell's note. No note, no passage — that's the craft of it, and a fine craft till someone gutted the bell.\" He counts your problems off on three fingers, with relish.\n\n\"One: the winch. Manual override, but she's rusted since before your mother sinned. Take an ox's arm to move her now. Two: the pump-hammer there — millwright rigged it to strike the bell for festivals. Works, except it's missing its drive cog; bronze, about a hand wide. Pell's got crates of millwright salvage he can't open, if you take my meaning. Three:\" — he leans back — \"sing the note your own self. Bell-true, mind. There were chanters could do it, in the days when this country still made noise on purpose.\"",
+      "options": [
+        { "text": "\"Wit, muscle, or music. I'll find one of the three.\"", "effects": [{ "type": "end" }] },
+        { "text": "\"What did the bell-thief leave in the mill, Tam?\"", "next": "intro-loop" }
+      ]
+    },
+
+    "intro-loop": {
+      "speaker": "Old Tam",
+      "text": "He finally looks at you straight, which from Tam is a ceremony.\n\n\"Ask me proper, and maybe I'll tell you what I've seen. Or don't, and stay comfortable.\"",
+      "options": [
+        {
+          "text": "\"You keep that lantern lit for a reason. Tell me what you've seen.\"",
+          "check": { "skill": "insight", "dc": "medium", "success": "seen", "failure": "clams" }
+        },
+        { "text": "\"Comfortable suits me.\" (leave)", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "seen": {
+      "speaker": "Old Tam",
+      "text": "Tam glances down the path, then leans in, lantern-light pooling between you like a held breath.\n\n\"Dusk before last, it came down to the gate. Tall as the door and grey as ash-water, and it stood there — listening at my lattice like a man at a keyhole. So I did the only thing I had: struck my lantern-flint and hummed gran's hearth-song, wobbly as you like.\" His jaw sets. \"It flinched. Both times, boy — flinched from the spark and flinched worse from the tune, like each one burnt it. Then it went back up the path. So you keep fire to hand in there, and someone who can carry a note, and you'll have its measure.\"",
+      "effects": [{ "type": "setFlag", "flag": "hush-lore" }],
+      "options": [
+        { "text": "\"Fire and song. I'll remember, Tam.\"", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "clams": {
+      "speaker": "Old Tam",
+      "text": "The shutter comes down behind his eyes. \"Seen sixty winters and a lot of fog,\" he says, to the gatepost. \"Man my age sees all kinds of things. Most of them are none of a stranger's business, and the rest are weather.\"\n\nHe picks up his lantern and trims the wick, conversation over.",
+      "options": [
+        { "text": "Leave him to it.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "after": {
+      "speaker": "Old Tam",
+      "text": "Tam regards the open gate with the expression of a man whose least favorite chore has been done by somebody else, suspiciously well.\n\n\"Hm,\" he says, which from Tam is a parade. \"Mind the dark in there. And if you hear it stop being quiet — that's worse. Run at that point.\"",
+      "options": [
+        { "text": "\"Noted. Keep the gate open for us.\"", "effects": [{ "type": "end" }] }
+      ]
+    }
+  }
+}

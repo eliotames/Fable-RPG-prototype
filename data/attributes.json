@@ -1,0 +1,29 @@
+{
+  "//": "The four attributes. Skills (skills.json) each cite one of these as their governing attribute; combat-tuning.json maps them to derived stats.",
+  "attributes": [
+    {
+      "id": "brawn",
+      "name": "Brawn",
+      "abbr": "BRN",
+      "desc": "Muscle, lungs, and the will to keep standing. Drives heavy weapons, feats of force, and how much punishment you can take."
+    },
+    {
+      "id": "finesse",
+      "name": "Finesse",
+      "abbr": "FIN",
+      "desc": "Quick hands and quicker feet. Drives speed in combat, lockwork, light steps, and acting before anyone notices."
+    },
+    {
+      "id": "intellect",
+      "name": "Intellect",
+      "abbr": "INT",
+      "desc": "Memory, study, and pattern-sight. Drives lore, mechanisms, wind-craft, and how much focus you can hold for abilities."
+    },
+    {
+      "id": "presence",
+      "name": "Presence",
+      "abbr": "PRS",
+      "desc": "The weight of your voice in a world losing its sound. Drives persuasion, reading people, and resonant arts."
+    }
+  ]
+}

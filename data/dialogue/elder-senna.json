@@ -1,0 +1,121 @@
+{
+  "id": "elder-senna",
+  "//": "Quest-giver. Demonstrates: redirects on state, passive voices (Insight, Lore), an active Persuasion check where failure still leads somewhere, and quest start effects.",
+  "start": "entry",
+  "nodes": {
+    "entry": {
+      "text": "(routing)",
+      "redirects": [
+        { "conditions": [{ "type": "questAtStage", "quest": "a-quiet-toll", "stage": "the-roost" }], "node": "urge" },
+        { "conditions": [{ "type": "questActive", "quest": "a-quiet-toll" }], "node": "during" },
+        { "node": "intro" }
+      ]
+    },
+
+    "intro": {
+      "speaker": "Elder Senna",
+      "text": "An old woman straightens from a ledger she has plainly not been reading. Her shawl is good wool gone thin at the elbows; her eyes do a swift inventory of your boots, your weapon, your face.\n\n\"A traveler. With a voice, even — say something else, I beg you, we've gone weeks short of new sounds here. I am Senna, elder of this Crossing, for whatever an elder is worth when the trouble doesn't take petitions.\"",
+      "voices": [
+        { "skill": "insight", "dc": 4, "text": "Her thumb keeps circling one key on her ring — polished bright, while the rest sit dull. Whatever it locks, she visits it. Often." },
+        { "skill": "lore", "dc": 4, "text": "The charter behind her names the mill rights: held by the Vael-line millers under the elder's seal. The mill isn't just the town's bread. It's her family's name." }
+      ],
+      "options": [
+        { "text": "\"What's happened here? The road's been silent for miles.\"", "next": "explain" },
+        {
+          "text": "\"You looked at that key when you said 'trouble.' What aren't you telling me?\"",
+          "conditions": [{ "type": "skillAtLeast", "skill": "insight", "value": 4 }],
+          "check": { "skill": "persuasion", "dc": "medium", "success": "truth", "failure": "deflect" }
+        },
+        { "text": "\"Just passing through, elder.\"", "next": "plea" }
+      ]
+    },
+
+    "explain": {
+      "speaker": "Elder Senna",
+      "text": "\"The Hush.\" She says it the way other towns say flood, or fire. \"A stillness that's been crossing the hills since spring — where it settles, sound dies. Then speech. Then, if the stories hold, breath.\n\nA month ago it reached our mill. The wheel stopped between two turns of the stone. Our miller never came out. And now, at dusk, something moves behind the millhouse windows — tall, and grey, and patient.\n\nThe bell-gate keeps it penned on the mill path, but penned isn't gone, and we cannot grind grain with a monster in the works. I have no soldiers to send. I have a stubborn gatekeeper, a poster nobody answers, and now — perhaps — you.\"",
+      "options": [
+        { "text": "\"I'll deal with it. How do I get to the mill?\"", "next": "task" },
+        {
+          "text": "\"Tell me what the lore says about the Hush first.\"",
+          "conditions": [{ "type": "skillAtLeast", "skill": "lore", "value": 3 }],
+          "next": "hush-talk"
+        },
+        { "text": "\"Monsters are someone else's trade. Good luck, elder.\"", "next": "plea" }
+      ]
+    },
+
+    "hush-talk": {
+      "speaker": "Elder Senna",
+      "text": "\"You're book-fed. Good.\" She lowers her voice, which in Greyreach these days is a redundancy. \"The wind-orders wrote that the Hush is not emptiness but appetite — swallowed sound, hoarded. What it cannot abide is sound it doesn't own: a true-struck note, a living fire's crackle. Our bell kept it off this town for a season. Then the bell went mute in a single night — clapper gone, the cup stuffed with grey wax — and three days later the mill stopped.\n\nDraw what conclusions you like. I've drawn mine and they keep me from sleeping.\"",
+      "options": [
+        { "text": "\"Then I'll return some sound to your mill. How do I get there?\"", "next": "task" }
+      ]
+    },
+
+    "truth": {
+      "speaker": "Elder Senna",
+      "text": "The key stops moving under her thumb. For a long moment she is just an old woman, caught.\n\n\"...The miller is my brother. Doran. Doran Vael.\" The name comes out rusty. \"When the mill went dark the town wanted the path opened and the thing flushed out — and I looked at what stood in those windows wearing my brother's height, and I had Tam seal the bell-gate instead. I told them it was for safety. It was so nobody would make me see what's left of him up close.\n\nGo. Open the way — Tam will not stop you, the gate answers to the bell's note and to main strength and to cleverness, the choosing's yours. But if anything of Doran is in that thing still... be quick about it. Quick is the only kindness left.\"",
+      "effects": [
+        { "type": "setFlag", "flag": "senna-truth" },
+        { "type": "addItem", "item": "hale-draught", "qty": 1 }
+      ],
+      "options": [
+        { "text": "\"I'll be quick. And I'll look for him.\"", "next": "task" }
+      ]
+    },
+
+    "deflect": {
+      "speaker": "Elder Senna",
+      "text": "Her face shutters like a market stall at dusk. \"What I'm not telling you, traveler, is the business of the office, and the office has had a trying season.\" The key disappears into her fist. \"What I am telling you is that there's a monster in my mill and a reward in my ledger. Most folk would call that generous conversation.\"",
+      "options": [
+        { "text": "\"Fair enough. Tell me about the mill.\"", "next": "explain" },
+        { "text": "\"Keep your secrets, then. Good day, elder.\"", "next": "plea" }
+      ]
+    },
+
+    "plea": {
+      "speaker": "Elder Senna",
+      "text": "\"Then pass through quickly,\" she says, and the brittleness in it stops you mid-turn. \"Forgive me. It's only that everyone passes through quickly, now. And every morning the quiet stands a little nearer the well.\n\nIf you change your mind — the mill, north past the bell-gate. There would be no shame in changing your mind.\"",
+      "options": [
+        { "text": "\"...Alright. Tell me everything.\"", "next": "explain" },
+        { "text": "Leave her to her ledger.", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "task": {
+      "speaker": "Elder Senna",
+      "text": "\"North past the green, through the bell-gate — Tam keeps it, talk to him. The gate answers only to the great bell's note, and the bell's been gutted, so you'll need wit or muscle or the old music. Pell's crates may hold something useful; he certainly can't open them.\n\nAnd traveler — don't go alone. Maren Vael is wearing out fence posts by the quarry road; grief swings a fine hammer. And there's a Hollowed girl by the pond who the silence parts around like a curtain. Strange company is still company.\"\n\nShe stamps a half-page of the ledger and tears it free: your contract, apparently.",
+      "effects": [
+        { "type": "setFlag", "flag": "met-senna" },
+        { "type": "startQuest", "quest": "a-quiet-toll" }
+      ],
+      "options": [
+        { "text": "\"I'll see it done.\" (take your leave)", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "during": {
+      "speaker": "Elder Senna",
+      "text": "\"Still with us. Good — the quiet hasn't got you yet.\" She glances north, toward the mill, the way one checks a wound. \"The gate answers to the bell's true note, to main strength, or to a tinker's trick with the pump-hammer. And take company, traveler. The Hush picks lone voices first.\"",
+      "voices": [
+        { "skill": "insight", "dc": 4, "text": "Every time she says 'the mill' her thumb finds that bright key again. There is a name she isn't saying." }
+      ],
+      "options": [
+        {
+          "text": "\"You looked at that key again. Who is in that mill, Senna?\"",
+          "conditions": [{ "type": "notFlag", "flag": "senna-truth" }, { "type": "skillAtLeast", "skill": "insight", "value": 4 }],
+          "check": { "skill": "persuasion", "dc": "medium", "success": "truth", "failure": "deflect" }
+        },
+        { "text": "\"Just checking in. Back to it.\"", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "urge": {
+      "speaker": "Elder Senna",
+      "text": "Word has reached her already; in a town this quiet, an opened gate is a thunderclap. \"The way is open, then.\" Her hands have stopped pretending to work. \"Whatever you find in there — finish it. And come back able to tell me about it. The telling matters more than you'd think, these days.\"",
+      "options": [
+        { "text": "\"Keep a lamp lit, elder.\"", "effects": [{ "type": "end" }] }
+      ]
+    }
+  }
+}

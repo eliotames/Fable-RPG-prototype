@@ -1,0 +1,30 @@
+{
+  "//": "Every content file the game loads. To add content: create the JSON file, add one line here. type tells the engine how to validate and index it: attributes | skills | races | classes | abilities | items | enemies | npcs | party | quests | tuning | dialogue | map. Keys must be unique.",
+  "files": [
+    { "key": "attributes", "type": "attributes", "path": "data/attributes.json" },
+    { "key": "skills", "type": "skills", "path": "data/skills.json" },
+    { "key": "races", "type": "races", "path": "data/races.json" },
+    { "key": "classes", "type": "classes", "path": "data/classes.json" },
+    { "key": "abilities", "type": "abilities", "path": "data/abilities.json" },
+    { "key": "items", "type": "items", "path": "data/items.json" },
+    { "key": "enemies", "type": "enemies", "path": "data/enemies.json" },
+    { "key": "npcs", "type": "npcs", "path": "data/npcs.json" },
+    { "key": "party", "type": "party", "path": "data/party.json" },
+    { "key": "quests", "type": "quests", "path": "data/quests.json" },
+    { "key": "tuning", "type": "tuning", "path": "data/combat-tuning.json" },
+
+    { "key": "dlg-elder-senna", "type": "dialogue", "path": "data/dialogue/elder-senna.json" },
+    { "key": "dlg-old-tam", "type": "dialogue", "path": "data/dialogue/old-tam.json" },
+    { "key": "dlg-pell", "type": "dialogue", "path": "data/dialogue/pell.json" },
+    { "key": "dlg-maren-vael", "type": "dialogue", "path": "data/dialogue/maren-vael.json" },
+    { "key": "dlg-issi", "type": "dialogue", "path": "data/dialogue/issi.json" },
+    { "key": "dlg-bell-gate", "type": "dialogue", "path": "data/dialogue/bell-gate.json" },
+    { "key": "dlg-supply-cache", "type": "dialogue", "path": "data/dialogue/supply-cache.json" },
+    { "key": "dlg-notice-board", "type": "dialogue", "path": "data/dialogue/notice-board.json" },
+    { "key": "dlg-hush-edge", "type": "dialogue", "path": "data/dialogue/hush-edge.json" },
+    { "key": "dlg-mill-door", "type": "dialogue", "path": "data/dialogue/mill-door.json" },
+    { "key": "dlg-sentinel-aftermath", "type": "dialogue", "path": "data/dialogue/sentinel-aftermath.json" },
+
+    { "key": "map-greyreach", "type": "map", "path": "data/maps/greyreach.json" }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "//": "Items. type: consumable (usable in combat if it has a 'combat' block), key (quest/puzzle objects checked by hasItem conditions), trinket (flavor). Combat blocks follow the same math as abilities; timed:true gives the timed-hit bar.",
+  "items": [
+    {
+      "id": "hale-draught",
+      "name": "Hale Draught",
+      "desc": "Sour, fizzing, and smelling faintly of thunderstorm. Mends flesh in a hurry.",
+      "type": "consumable",
+      "combat": { "kind": "heal", "power": 16, "target": "ally" }
+    },
+    {
+      "id": "ember-flask",
+      "name": "Ember Flask",
+      "desc": "Banked quarry-fire in glass. Shatter it on something you want loudly on fire. The Hush hates fire almost as much as song.",
+      "type": "consumable",
+      "combat": { "kind": "damage", "power": 13, "element": "ember", "breakPower": 2, "target": "enemy", "timed": true }
+    },
+    {
+      "id": "mill-cog",
+      "name": "Bronze Mill-Cog",
+      "desc": "A heavy bronze gear stamped with the Greyreach millwright's mark. The pump-hammer by the gate is missing exactly one of these.",
+      "type": "key"
+    },
+    {
+      "id": "tuning-fork",
+      "name": "Chanter's Tuning Fork",
+      "desc": "Struck against stone it sings a long, stubborn A. Standard issue for arguments with silence.",
+      "type": "trinket"
+    },
+    {
+      "id": "chimewright-locket",
+      "name": "Chimewright's Locket",
+      "desc": "A tarnished locket holding a sliver of bell-bronze. It hums very softly when the Hush is near — a smuggler's hiding spot gave it up.",
+      "type": "trinket"
+    }
+  ]
+}

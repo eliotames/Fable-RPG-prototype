@@ -1,0 +1,62 @@
+{
+  "id": "pell",
+  "//": "Flavor merchant; points to the supply cache; small optional Persuasion check for a freebie (gated to once via flag).",
+  "start": "intro",
+  "nodes": {
+    "intro": {
+      "speaker": "Pell",
+      "text": "A round, cheerful man arranges and rearranges a stall of goods nobody is buying, humming under his breath — quietly, then quieter, then catching himself and humming louder on purpose.\n\n\"A customer! Or company — honestly either is a festival at this point. Pell's the name, sundries the game, and everything's half price on account of the apocalypse being bad for foot traffic.\"",
+      "voices": [
+        { "skill": "insight", "dc": 3, "text": "The cheer is real, but it's load-bearing. He hums to prove to himself he still can." }
+      ],
+      "options": [
+        { "text": "\"What do you know about the millwright's crates?\"", "next": "crates" },
+        { "text": "\"Tell me about the folk left in town.\"", "next": "gossip" },
+        {
+          "text": "\"Surely the town's prospective mill-saver rates a welcome gift?\"",
+          "conditions": [{ "type": "notFlag", "flag": "pell-gift" }],
+          "check": { "skill": "persuasion", "dc": "easy", "success": "gift", "failure": "no-gift" }
+        },
+        { "text": "\"Just browsing the apocalypse, thanks.\"", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "crates": {
+      "speaker": "Pell",
+      "text": "\"Ahh, the crates.\" He gestures grandly at the stack near the old mill wall, north-east of the green. \"Millwright's salvage — took them in payment the week before, well, everything. Sealed tighter than a tax collector's heart, and my crowbar arm is more of a crowbar suggestion. Tell you what: you get them open, we go half-shares. By which I mean you take what's useful for the mill business and I'll inflate the story of my generosity later.\"",
+      "options": [
+        { "text": "\"Half-shares it is.\"", "effects": [{ "type": "end" }] },
+        { "text": "\"What else do you know?\"", "next": "gossip" }
+      ]
+    },
+
+    "gossip": {
+      "speaker": "Pell",
+      "text": "\"Let's see — Senna holds the town together with ledger-paste and stubbornness, bless her. Tam guards that gate like it's the last door in the world, which, hm.\" He counts on his fingers. \"Maren Vael's been fencing the quarry road into a palisade — grief, you know, terrible thing, magnificent forearms. And there's the Hollowed girl out by the pond. Issi. Folk are scared of her, which is foolishness — anything the Hush spat back out is on our side of the ledger, I say.\"",
+      "options": [
+        { "text": "\"Useful. Thanks, Pell.\"", "effects": [{ "type": "end" }] },
+        { "text": "\"About those crates—\"", "next": "crates" }
+      ]
+    },
+
+    "gift": {
+      "speaker": "Pell",
+      "text": "\"Mill-saver!\" He clutches his chest, delighted to be robbed so politely. \"Oh, fine, FINE. For the hero trade, one Hale Draught, on the house — and when the wheel turns again you'll tell everyone Pell's Sundries provisioned the expedition. That's the half of the bargain I actually care about.\"",
+      "effects": [
+        { "type": "setFlag", "flag": "pell-gift" },
+        { "type": "addItem", "item": "hale-draught", "qty": 1 }
+      ],
+      "options": [
+        { "text": "\"Pell's Sundries: outfitter of legends. Got it.\"", "effects": [{ "type": "end" }] }
+      ]
+    },
+
+    "no-gift": {
+      "speaker": "Pell",
+      "text": "\"Prospective,\" he repeats, wagging a finger. \"I once gave a 'prospective' dragon-slayer three weeks of jerky on credit. He moved to the coast and opened a bakery. Save the mill first, friend — then we'll talk heroic discounts.\"",
+      "options": [
+        { "text": "\"Fair enough, merchant.\"", "effects": [{ "type": "end" }] }
+      ]
+    }
+  }
+}

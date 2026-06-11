@@ -1,0 +1,16 @@
+{
+  "id": "notice-board",
+  "//": "Pure environmental flavor object.",
+  "start": "read",
+  "nodes": {
+    "read": {
+      "text": "The village notice board, curling at the corners:\n\n— \"REWARD: for the opening of the mill path & removal of the trouble therein. Apply to Elder Senna. Seriously. Anyone.\"\n— \"LOST: the sound of the dusk bell. Sentimental value. — T.\"\n— \"PELL'S SUNDRIES remains OPEN and OPTIMISTIC.\"\n— A child's charcoal drawing of a tall grey figure, crossed out very hard.",
+      "voices": [
+        { "skill": "insight", "dc": 3, "text": "Someone re-pins these notices when the wind takes them. In a town this tired, that's not admin — that's hope, doing maintenance." }
+      ],
+      "options": [
+        { "text": "Step away from the board.", "effects": [{ "type": "setFlag", "flag": "heard-toll" }, { "type": "end" }] }
+      ]
+    }
+  }
+}

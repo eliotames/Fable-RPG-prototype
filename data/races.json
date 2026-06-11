@@ -1,0 +1,26 @@
+{
+  "//": "Playable races. attributeBonuses/skillBonuses are added on top of the points the player distributes. 'abilities' (optional) grants racial abilities from abilities.json. Dialogue can react to race via the {\"type\":\"race\"} condition.",
+  "races": [
+    {
+      "id": "cragfolk",
+      "name": "Cragfolk",
+      "desc": "Quarry-bred highlanders who speak sparingly and stand like their stone. The Hush frightens them less than most — they were half in love with quiet already.",
+      "attributeBonuses": { "brawn": 1 },
+      "skillBonuses": { "endurance": 1, "force": 1 }
+    },
+    {
+      "id": "skyborn",
+      "name": "Skyborn",
+      "desc": "Heirs of the old wind-reading orders, raised on rooftop observatories. They can tell tomorrow's weather from a candle flame — and they keep meticulous notes on the Hush.",
+      "attributeBonuses": { "intellect": 1 },
+      "skillBonuses": { "lore": 1, "tinkering": 1 }
+    },
+    {
+      "id": "hollowed",
+      "name": "Hollowed",
+      "desc": "Folk the Hush touched and, inexplicably, released. Their voices carry a strange flat calm and the silence parts around them like water. Others find them unsettling; the Hush finds them familiar.",
+      "attributeBonuses": { "presence": 1 },
+      "skillBonuses": { "stealth": 1, "insight": 1 }
+    }
+  ]
+}

@@ -34,8 +34,8 @@
    "margin": 0,
    "spacing": 0,
    "image": "tiles.png",
-   "imagewidth": 512,
-   "imageheight": 32
+   "imagewidth": 1024,
+   "imageheight": 64
   }
  ],
  "layers": [

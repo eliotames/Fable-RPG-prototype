@@ -27,15 +27,15 @@ export const Fonts = {
 
 /** @returns {object} Phaser text style */
 export function bodyStyle(overrides = {}) {
-  return { fontFamily: Fonts.body, fontSize: '17px', color: Colors.text, lineSpacing: 6, ...overrides };
+  return { fontFamily: Fonts.body, fontSize: '34px', color: Colors.text, lineSpacing: 12, ...overrides };
 }
 
 /** @returns {object} Phaser text style */
 export function uiStyle(overrides = {}) {
-  return { fontFamily: Fonts.ui, fontSize: '14px', color: Colors.text, ...overrides };
+  return { fontFamily: Fonts.ui, fontSize: '28px', color: Colors.text, ...overrides };
 }
 
 /** @returns {object} Phaser text style */
 export function titleStyle(overrides = {}) {
-  return { fontFamily: Fonts.body, fontSize: '42px', color: '#e8e4d8', fontStyle: 'bold', ...overrides };
+  return { fontFamily: Fonts.body, fontSize: '84px', color: '#e8e4d8', fontStyle: 'bold', ...overrides };
 }

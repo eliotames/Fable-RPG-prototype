@@ -93,49 +93,49 @@ export class CombatScene extends Phaser.Scene {
   buildUi(encounter) {
     const sw = this.scale.width, sh = this.scale.height;
     this.add.rectangle(0, 0, sw, sh, 0x101218).setOrigin(0);
-    this.add.text(sw / 2, 26, encounter.name, titleStyle({ fontSize: '24px' })).setOrigin(0.5);
-    this.roundText = this.add.text(sw / 2, 54, '', uiStyle({ fontSize: '13px', color: Colors.textDim })).setOrigin(0.5);
+    this.add.text(sw / 2, 52, encounter.name, titleStyle({ fontSize: '48px' })).setOrigin(0.5);
+    this.roundText = this.add.text(sw / 2, 108, '', uiStyle({ fontSize: '26px', color: Colors.textDim })).setOrigin(0.5);
 
     // party column
-    panel(this, 20, 80, 360, 420);
+    panel(this, 40, 160, 720, 840);
     this.partyRows = this.party.map((m, i) => {
-      const y = 100 + i * 130;
-      const name = this.add.text(40, y, m.name, bodyStyle({ fontSize: '17px', color: '#ffe9b0' }));
-      const hpBar = statBar(this, 40, y + 28, 220, 12, Colors.good);
-      const hpText = this.add.text(270, y + 26, '', uiStyle({ fontSize: '12px' }));
-      const focusBar = statBar(this, 40, y + 48, 220, 8, Colors.focus);
-      const focusText = this.add.text(270, y + 44, '', uiStyle({ fontSize: '12px', color: '#9ec4e8' }));
-      const status = this.add.text(40, y + 64, '', uiStyle({ fontSize: '12px', color: Colors.textDim }));
-      const zone = this.add.rectangle(200, y + 45, 350, 110, 0xffffff, 0).setInteractive({ useHandCursor: true });
+      const y = 200 + i * 260;
+      const name = this.add.text(80, y, m.name, bodyStyle({ fontSize: '34px', color: '#ffe9b0' }));
+      const hpBar = statBar(this, 80, y + 56, 440, 24, Colors.good);
+      const hpText = this.add.text(540, y + 52, '', uiStyle({ fontSize: '24px' }));
+      const focusBar = statBar(this, 80, y + 96, 440, 16, Colors.focus);
+      const focusText = this.add.text(540, y + 88, '', uiStyle({ fontSize: '24px', color: '#9ec4e8' }));
+      const status = this.add.text(80, y + 128, '', uiStyle({ fontSize: '24px', color: Colors.textDim }));
+      const zone = this.add.rectangle(400, y + 90, 700, 220, 0xffffff, 0).setInteractive({ useHandCursor: true });
       zone.on('pointerdown', () => this.onAllyClicked(m));
       return { m, name, hpBar, hpText, focusBar, focusText, status, zone };
     });
 
     // enemy column
-    panel(this, sw - 420, 80, 400, 420);
+    panel(this, sw - 840, 160, 800, 840);
     this.enemyRows = this.enemies.map((e, i) => {
-      const y = 100 + i * 130;
-      const name = this.add.text(sw - 400, y, e.name, bodyStyle({ fontSize: '17px', color: '#e8b0a0' }));
-      const hpBar = statBar(this, sw - 400, y + 28, 220, 12, Colors.danger);
-      const hpText = this.add.text(sw - 170, y + 26, '', uiStyle({ fontSize: '12px' }));
-      const tough = this.add.text(sw - 400, y + 46, '', uiStyle({ fontSize: '13px', color: '#d8c06a' }));
-      const weak = this.add.text(sw - 400, y + 66, '', uiStyle({ fontSize: '12px', color: '#b89ad8' }));
-      const banner = this.add.text(sw - 60, y + 2, '', uiStyle({ fontSize: '13px', color: '#ffd24a', fontStyle: 'bold' })).setOrigin(1, 0);
-      const zone = this.add.rectangle(sw - 220, y + 45, 390, 110, 0xffffff, 0).setInteractive({ useHandCursor: true });
+      const y = 200 + i * 260;
+      const name = this.add.text(sw - 800, y, e.name, bodyStyle({ fontSize: '34px', color: '#e8b0a0' }));
+      const hpBar = statBar(this, sw - 800, y + 56, 440, 24, Colors.danger);
+      const hpText = this.add.text(sw - 340, y + 52, '', uiStyle({ fontSize: '24px' }));
+      const tough = this.add.text(sw - 800, y + 92, '', uiStyle({ fontSize: '26px', color: '#d8c06a' }));
+      const weak = this.add.text(sw - 800, y + 132, '', uiStyle({ fontSize: '24px', color: '#b89ad8' }));
+      const banner = this.add.text(sw - 120, y + 4, '', uiStyle({ fontSize: '26px', color: '#ffd24a', fontStyle: 'bold' })).setOrigin(1, 0);
+      const zone = this.add.rectangle(sw - 440, y + 90, 780, 220, 0xffffff, 0).setInteractive({ useHandCursor: true });
       zone.on('pointerdown', () => this.onEnemyClicked(e));
-      const hover = this.add.rectangle(sw - 220, y + 45, 390, 110).setStrokeStyle(1, 0xd8b36a, 0.9).setVisible(false);
+      const hover = this.add.rectangle(sw - 440, y + 90, 780, 220).setStrokeStyle(2, 0xd8b36a, 0.9).setVisible(false);
       zone.on('pointerover', () => { if (this.phase === 'target' && this.targetSide === 'enemy' && e.hp > 0) hover.setVisible(true); });
       zone.on('pointerout', () => hover.setVisible(false));
       return { e, name, hpBar, hpText, tough, weak, banner, zone, hover };
     });
 
     // log
-    panel(this, 20, 520, 600, 180);
+    panel(this, 40, 1040, 1200, 360);
     this.logLines = [];
-    this.logText = this.add.text(36, 532, '', uiStyle({ fontSize: '13px', color: '#c8c4b8', lineSpacing: 5, wordWrap: { width: 570 } }));
+    this.logText = this.add.text(72, 1064, '', uiStyle({ fontSize: '26px', color: '#c8c4b8', lineSpacing: 10, wordWrap: { width: 1140 } }));
 
     // action menu
-    panel(this, 640, 520, 620, 180);
+    panel(this, 1280, 1040, 1240, 360);
     this.menuObjects = [];
 
     // timing widget area (center)
@@ -212,23 +212,23 @@ export class CombatScene extends Phaser.Scene {
   showActionMenu(actor) {
     this.clearMenu();
     const put = (o) => { this.menuObjects.push(o); return o; };
-    put(this.add.text(656, 530, `${actor.name} — choose an action`, uiStyle({ fontSize: '14px', color: '#ffe9b0' })));
+    put(this.add.text(1312, 1060, `${actor.name} — choose an action`, uiStyle({ fontSize: '28px', color: '#ffe9b0' })));
 
     actor.abilities.forEach((abilityId, i) => {
       const ab = this.reg.abilities.get(abilityId);
       const affordable = actor.focus >= ab.focusCost;
       const col = i % 2, row = Math.floor(i / 2);
       const label = `${ab.name}${ab.focusCost ? ` (${ab.focusCost}◈)` : ''} · ${ab.kind === 'heal' ? 'heal' : ab.element}`;
-      put(textButton(this, 656 + col * 300, 558 + row * 26, label, {
+      put(textButton(this, 1312 + col * 600, 1116 + row * 52, label, {
         disabled: !affordable,
-        style: { fontSize: '14px', color: affordable ? '#e8e4d8' : Colors.disabled },
+        style: { fontSize: '28px', color: affordable ? '#e8e4d8' : Colors.disabled },
         onClick: () => this.pickAbility(actor, ab),
       }));
     });
 
-    const baseY = 558 + Math.ceil(actor.abilities.length / 2) * 26 + 8;
-    put(textButton(this, 656, baseY, `[ Defend ]  (+${this.tuning.focus.defendRegen}◈, half damage)`, {
-      style: { fontSize: '14px', color: '#9ec4e8' },
+    const baseY = 1116 + Math.ceil(actor.abilities.length / 2) * 52 + 16;
+    put(textButton(this, 1312, baseY, `[ Defend ]  (+${this.tuning.focus.defendRegen}◈, half damage)`, {
+      style: { fontSize: '28px', color: '#9ec4e8' },
       onClick: () => this.doDefend(actor),
     }));
 
@@ -236,12 +236,12 @@ export class CombatScene extends Phaser.Scene {
       .map(([id, qty]) => ({ item: this.reg.items.get(id), qty }))
       .filter((x) => x.item?.combat && x.qty > 0);
     combatItems.forEach((x, i) => {
-      put(textButton(this, 656 + 300, baseY + i * 24, `Use ${x.item.name} ×${x.qty}`, {
-        style: { fontSize: '14px', color: '#d8c06a' },
+      put(textButton(this, 1312 + 600, baseY + i * 48, `Use ${x.item.name} ×${x.qty}`, {
+        style: { fontSize: '28px', color: '#d8c06a' },
         onClick: () => this.pickItem(actor, x.item),
       }));
     });
-    put(this.add.text(656, 676, 'timed hits & parries: SPACE', uiStyle({ fontSize: '11px', color: Colors.textDim })));
+    put(this.add.text(1312, 1352, 'timed hits & parries: SPACE', uiStyle({ fontSize: '22px', color: Colors.textDim })));
   }
 
   pickAbility(actor, ability) {
@@ -268,9 +268,9 @@ export class CombatScene extends Phaser.Scene {
     if (pool.length === 1) return this.commitTarget(pool[0]);
     this.phase = 'target';
     this.clearMenu();
-    this.menuObjects.push(this.add.text(656, 540,
+    this.menuObjects.push(this.add.text(1312, 1080,
       `${this.pendingMove.name} — click a ${targetType === 'enemy' ? 'target' : 'companion'}`,
-      uiStyle({ fontSize: '15px', color: '#ffe9b0' })));
+      uiStyle({ fontSize: '30px', color: '#ffe9b0' })));
   }
 
   onEnemyClicked(e) {
@@ -311,15 +311,15 @@ export class CombatScene extends Phaser.Scene {
   runTimedHit() {
     this.phase = 'timing';
     const t = this.tuning.timing.attack;
-    const cx = this.scale.width / 2, cy = 440, W = 360, H = 18;
+    const cx = this.scale.width / 2, cy = 880, W = 720, H = 36;
     const put = (o) => { this.timingObjects.push(o); return o; };
-    put(this.add.text(cx, cy - 34, `${this.pendingMove.name} — SPACE at the center!`, uiStyle({ fontSize: '14px', color: '#ffe9b0' })).setOrigin(0.5));
-    put(this.add.rectangle(cx, cy, W, H, 0x22242c).setStrokeStyle(1, Colors.panelEdge));
+    put(this.add.text(cx, cy - 68, `${this.pendingMove.name} — SPACE at the center!`, uiStyle({ fontSize: '28px', color: '#ffe9b0' })).setOrigin(0.5));
+    put(this.add.rectangle(cx, cy, W, H, 0x22242c).setStrokeStyle(2, Colors.panelEdge));
     const goodW = (t.goodMs * 2 / t.sweepMs) * W;
     const perfW = (t.perfectMs * 2 / t.sweepMs) * W;
-    put(this.add.rectangle(cx, cy, goodW, H - 4, 0x5a7a4a));
-    put(this.add.rectangle(cx, cy, perfW, H - 4, 0xd8b36a));
-    const cursor = put(this.add.rectangle(cx - W / 2, cy, 3, H + 8, 0xffffff));
+    put(this.add.rectangle(cx, cy, goodW, H - 8, 0x5a7a4a));
+    put(this.add.rectangle(cx, cy, perfW, H - 8, 0xd8b36a));
+    const cursor = put(this.add.rectangle(cx - W / 2, cy, 6, H + 16, 0xffffff));
 
     const started = this.time.now;
     let pressMs = null;
@@ -340,9 +340,9 @@ export class CombatScene extends Phaser.Scene {
       tick.remove();
       this.spaceHandler = null;
       const grade = gradeHit(this.tuning.timing, pressMs);
-      put(this.add.text(cx, cy + 28,
+      put(this.add.text(cx, cy + 56,
         grade.grade === 'perfect' ? 'PERFECT!' : grade.grade === 'good' ? 'Good' : 'Off-beat',
-        uiStyle({ fontSize: '16px', fontStyle: 'bold', color: grade.grade === 'perfect' ? '#ffd24a' : grade.grade === 'good' ? '#9ec48a' : '#8a8a8a' })).setOrigin(0.5));
+        uiStyle({ fontSize: '32px', fontStyle: 'bold', color: grade.grade === 'perfect' ? '#ffd24a' : grade.grade === 'good' ? '#9ec48a' : '#8a8a8a' })).setOrigin(0.5));
       this.time.delayedCall(550, () => { this.clearTiming(); this.resolvePartyAttack(grade); });
     };
   }
@@ -410,23 +410,23 @@ export class CombatScene extends Phaser.Scene {
 
   runParry(enemy, ability, target) {
     const t = this.tuning.timing.parry;
-    const cx = this.scale.width / 2, cy = 420;
+    const cx = this.scale.width / 2, cy = 840;
     const put = (o) => { this.timingObjects.push(o); return o; };
-    put(this.add.text(cx, cy - 40, `${ability.name} → ${target.name} — SPACE at the flash to parry!`,
-      uiStyle({ fontSize: '14px', color: '#e8b0a0' })).setOrigin(0.5));
+    put(this.add.text(cx, cy - 80, `${ability.name} → ${target.name} — SPACE at the flash to parry!`,
+      uiStyle({ fontSize: '28px', color: '#e8b0a0' })).setOrigin(0.5));
 
     let flashAt = null;       // time.now when the "!" appeared
     let pressMs;              // relative to flash; negative = early press
     this.spaceHandler = () => {
       if (pressMs !== undefined) return;
       pressMs = flashAt === null ? -1 : this.time.now - flashAt;
-      if (pressMs < 0) put(this.add.text(cx, cy + 26, 'too early!', uiStyle({ fontSize: '14px', color: '#c4554d' })).setOrigin(0.5));
+      if (pressMs < 0) put(this.add.text(cx, cy + 52, 'too early!', uiStyle({ fontSize: '28px', color: '#c4554d' })).setOrigin(0.5));
     };
 
     const delay = telegraphDelay(this.tuning.timing);
     this.time.delayedCall(delay, () => {
       flashAt = this.time.now;
-      const flash = put(this.add.text(cx, cy, '!', titleStyle({ fontSize: '64px', color: '#ffd24a' })).setOrigin(0.5));
+      const flash = put(this.add.text(cx, cy, '!', titleStyle({ fontSize: '128px', color: '#ffd24a' })).setOrigin(0.5));
       this.tweens.add({ targets: flash, scale: 1.6, alpha: 0.4, duration: t.windowMs, ease: 'Quad.easeOut' });
       this.time.delayedCall(t.windowMs + 60, () => {
         this.spaceHandler = null;

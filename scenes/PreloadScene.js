@@ -6,7 +6,8 @@
  */
 import { ContentRegistry } from '../systems/ContentRegistry.js';
 import { QuestSystem } from '../systems/QuestSystem.js';
-import { Colors, uiStyle, titleStyle } from '../ui/Theme.js';
+import { Palette, Ink, displayStyle, proseStyle, track } from '../ui/Theme.js';
+import { label } from '../ui/widgets.js';
 
 export class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -42,10 +43,10 @@ export class PreloadScene extends Phaser.Scene {
       this.loadErrors.push(`${file.src}: failed to load (missing file or invalid JSON)`);
     });
 
-    const barBg = this.add.rectangle(1280, 720, 840, 28, 0x22242c).setStrokeStyle(2, Colors.panelEdge);
-    const bar = this.add.rectangle(1280 - 416, 720, 1, 20, Colors.accent).setOrigin(0, 0.5);
-    this.add.text(1280, 660, 'Loading content…', uiStyle({ fontSize: '32px' })).setOrigin(0.5);
-    this.load.on('progress', (v) => bar.setSize(Math.max(1, 832 * v), 20));
+    const barBg = this.add.rectangle(1280, 722, 840, 6, Palette.bg3);
+    const bar = this.add.rectangle(1280 - 420, 722, 1, 6, Palette.brass).setOrigin(0, 0.5);
+    label(this, 1280, 668, 'LOADING CONTENT', { size: 16, color: Ink.faint, origin: [0.5, 0.5] });
+    this.load.on('progress', (v) => bar.setSize(Math.max(1, 840 * v), 6));
     this.load.on('complete', () => { barBg.destroy(); bar.destroy(); });
   }
 
@@ -78,17 +79,19 @@ export class PreloadScene extends Phaser.Scene {
   /** @param {string[]} problems */
   showErrors(problems) {
     console.error('Content validation failed:\n' + problems.join('\n'));
-    this.cameras.main.setBackgroundColor('#1a0b0b');
-    this.add.text(80, 60, 'Content error', titleStyle({ color: '#e06c5f', fontSize: '68px' }));
-    this.add.text(80, 160,
+    this.cameras.main.setBackgroundColor('#14100c');
+    label(this, 80, 64, 'THE BOOT REFUSES', { size: 14, color: Ink.faint });
+    const title = this.add.text(80, 100, 'CONTENT ERROR', displayStyle({ fontSize: '68px', color: Ink.accentBright }));
+    track(title, 8);
+    this.add.text(80, 210,
       'The game cannot start because content files failed validation.\n'
       + 'Fix the problems below (file → field: problem) and reload:',
-      uiStyle({ fontSize: '30px', color: '#d8c8c0' }));
+      proseStyle({ fontSize: '28px', color: Ink.dim }));
     const shown = problems.slice(0, 24);
     const more = problems.length > shown.length ? `\n… and ${problems.length - shown.length} more (see console)` : '';
-    this.add.text(80, 280, shown.join('\n') + more, {
-      fontFamily: 'Consolas, Menlo, monospace', fontSize: '26px',
-      color: '#ffd9c0', wordWrap: { width: 2400 }, lineSpacing: 10,
+    this.add.text(80, 330, shown.join('\n') + more, {
+      fontFamily: '"IBM Plex Mono", Consolas, Menlo, monospace', fontSize: '24px',
+      color: Ink.ink, wordWrap: { width: 2400 }, lineSpacing: 10,
     });
   }
 }

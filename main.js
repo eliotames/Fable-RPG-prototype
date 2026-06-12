@@ -8,6 +8,7 @@
 import { BootScene } from './scenes/BootScene.js';
 import { PreloadScene } from './scenes/PreloadScene.js';
 import { MainMenuScene } from './scenes/MainMenuScene.js';
+import { OptionsScene } from './scenes/OptionsScene.js';
 import { CharacterCreationScene } from './scenes/CharacterCreationScene.js';
 import { ExplorationScene } from './scenes/ExplorationScene.js';
 import { DialogueScene } from './scenes/DialogueScene.js';
@@ -23,13 +24,13 @@ const config = {
   parent: 'game', // Phaser falls back to <body> if no #game element exists
   width: 2560,
   height: 1440,
-  backgroundColor: '#0b0c10',
+  backgroundColor: '#14100c',
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   scene: [
-    BootScene, PreloadScene, MainMenuScene, CharacterCreationScene,
+    BootScene, PreloadScene, MainMenuScene, OptionsScene, CharacterCreationScene,
     ExplorationScene, DialogueScene, CombatScene, EndScene,
   ],
 };

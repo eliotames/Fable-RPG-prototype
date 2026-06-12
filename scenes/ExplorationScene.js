@@ -9,8 +9,8 @@
 import { GameState } from '../systems/GameState.js';
 import { QuestSystem } from '../systems/QuestSystem.js';
 import { propsOf } from '../systems/ContentRegistry.js';
-import { Colors, uiStyle, bodyStyle } from '../ui/Theme.js';
-import { panel, makeNotifier } from '../ui/widgets.js';
+import { Palette, Ink, displayStyle, proseStyle, monoStyle, track } from '../ui/Theme.js';
+import { panel, tickFrame, statBar, label, frameButton, makeNotifier } from '../ui/widgets.js';
 
 const STEP_MS = 170;
 
@@ -130,11 +130,11 @@ export class ExplorationScene extends Phaser.Scene {
     const tint = Phaser.Display.Color.HexStringToColor(it.color).color;
     const parts = [
       this.add.image(0, 0, 'token').setTint(tint),
-      this.add.text(0, 0, it.glyph, uiStyle({ fontSize: '28px', color: '#0b0c10', fontStyle: 'bold' })).setOrigin(0.5),
+      this.add.text(0, 0, it.glyph, monoStyle({ fontSize: '26px', color: '#0c0a08', fontStyle: 'bold' })).setOrigin(0.5),
     ];
     if (it.displayName) {
-      parts.push(this.add.text(0, -56, it.displayName,
-        uiStyle({ fontSize: '24px', color: it.color, backgroundColor: '#0b0c10aa', padding: { x: 8, y: 2 } })).setOrigin(0.5));
+      parts.push(track(this.add.text(0, -56, it.displayName.toUpperCase(),
+        monoStyle({ fontSize: '17px', color: it.color, backgroundColor: '#0c0a08aa', padding: { x: 10, y: 4 } })).setOrigin(0.5), 3));
     }
     it.token = this.asWorld(this.add.container(pos.x, pos.y, parts).setDepth(pos.y));
   }
@@ -156,8 +156,8 @@ export class ExplorationScene extends Phaser.Scene {
     this.pty = this.playerStart.ty;
     const pos = this.worldPos(this.ptx, this.pty);
     this.playerToken = this.asWorld(this.add.container(pos.x, pos.y, [
-      this.add.image(0, 0, 'token').setTint(0xd8b36a),
-      this.add.text(0, 0, '@', uiStyle({ fontSize: '30px', color: '#0b0c10', fontStyle: 'bold' })).setOrigin(0.5),
+      this.add.image(0, 0, 'token').setTint(Palette.brass),
+      this.add.text(0, 0, '@', monoStyle({ fontSize: '28px', color: '#0c0a08', fontStyle: 'bold' })).setOrigin(0.5),
     ]).setDepth(pos.y + 1));
   }
 
@@ -184,7 +184,7 @@ export class ExplorationScene extends Phaser.Scene {
     }
 
     const near = this.adjacentInteractable();
-    this.promptText.setText(near ? `[E] ${near.label ?? near.name}` : '').setVisible(!!near);
+    this.promptText.setText(near ? `[E]  ${(near.label ?? near.name).toUpperCase()}` : '').setVisible(!!near);
     if (near && (Phaser.Input.Keyboard.JustDown(k.E) || Phaser.Input.Keyboard.JustDown(k.SPACE))) {
       if (near.dialogueId) this.openDialogue(near.dialogueId);
       return;
@@ -259,25 +259,36 @@ export class ExplorationScene extends Phaser.Scene {
   // ------------------------------------------------------------------ HUD --
 
   buildHud() {
-    const sw = this.scale.width;
-    this.asUI(this.add.rectangle(0, 0, sw, 116, Colors.panel, 0.92).setOrigin(0).setScrollFactor(0).setDepth(4000));
-    this.asUI(this.add.text(40, 16, this.mapProps.displayName ?? this.mapKey,
-      bodyStyle({ fontSize: '36px', color: '#ffe9b0' })).setScrollFactor(0).setDepth(4001));
-    this.hintText = this.asUI(this.add.text(40, 68, '', uiStyle({ fontSize: '26px', color: Colors.textDim }))
-      .setScrollFactor(0).setDepth(4001));
-    this.asUI(this.add.text(sw - 40, 40, 'WASD move · E interact · Z/X zoom · J journal · C party',
-      uiStyle({ fontSize: '24px', color: Colors.textDim })).setOrigin(1, 0.5).setScrollFactor(0).setDepth(4001));
-    this.promptText = this.asUI(this.add.text(sw / 2, this.scale.height - 72, '',
-      uiStyle({ fontSize: '34px', color: '#ffe9b0', backgroundColor: '#14161dee', padding: { x: 24, y: 12 } }))
-      .setOrigin(0.5).setScrollFactor(0).setDepth(4001).setVisible(false));
+    const sw = this.scale.width, sh = this.scale.height;
+    const ui = (o) => this.asUI(o.setScrollFactor(0).setDepth(4001));
+
+    ui(track(this.add.text(48, 44, (this.mapProps.displayName ?? this.mapKey).toUpperCase(),
+      monoStyle({ fontSize: '20px', color: Ink.ink, backgroundColor: '#0c0a08bb', padding: { x: 14, y: 8 } })), 5));
+    this.hintText = ui(track(this.add.text(48, 102, '',
+      monoStyle({ fontSize: '14px', color: Ink.dim, backgroundColor: '#0c0a08bb', padding: { x: 14, y: 7 } })), 3));
+    ui(track(this.add.text(sw - 48, 48, 'WASD move · E interact · Z/X zoom · J journal · C party'.toUpperCase(),
+      monoStyle({ fontSize: '13px', color: Ink.faint, backgroundColor: '#0c0a08bb', padding: { x: 12, y: 7 } }))
+      .setOrigin(1, 0), 3));
+
+    // bottom-right action buttons (mirrors the J / C keys)
+    ui(frameButton(this, sw - 312, sh - 66, 'Journal', {
+      framed: true, size: 14, padX: 26, padY: 13, onClick: () => this.togglePanel('journal'),
+    }));
+    ui(frameButton(this, sw - 134, sh - 66, 'Party', {
+      framed: true, size: 14, padX: 26, padY: 13, onClick: () => this.togglePanel('party'),
+    }));
+
+    this.promptText = ui(track(this.add.text(sw / 2, sh - 72, '',
+      monoStyle({ fontSize: '21px', color: Ink.ink, backgroundColor: '#0c0a08ee', padding: { x: 28, y: 14 } }))
+      .setOrigin(0.5), 3)).setVisible(false);
     this.refreshHud();
   }
 
   refreshHud() {
     const active = QuestSystem.journalEntries().filter((e) => !e.done);
     this.hintText.setText(active.length
-      ? `◈ ${active[0].quest.name}: ${active[0].stageDef?.hint ?? ''}`
-      : 'Explore the Crossing. Someone here needs help.');
+      ? `◆ ${active[0].quest.name}: ${active[0].stageDef?.hint ?? ''}`.toUpperCase()
+      : 'EXPLORE THE CROSSING. SOMEONE HERE NEEDS HELP.');
   }
 
   togglePanel(kind) {
@@ -288,44 +299,83 @@ export class ExplorationScene extends Phaser.Scene {
       if (wasSame) return;
     }
     const objects = [];
-    const w = 1320, h = 1040, x = (this.scale.width - w) / 2, y = 180;
-    objects.push(this.asUI(panel(this, x, y, w, h).setScrollFactor(0).setDepth(4500)));
-    const txt = (tx, ty, str, style) =>
-      objects.push(this.asUI(this.add.text(x + tx, y + ty, str, style).setScrollFactor(0).setDepth(4501)));
+    const w = 1760, h = 1120, x = (this.scale.width - w) / 2, y = 160;
+    const ui = (o) => { objects.push(this.asUI(o.setScrollFactor(0).setDepth(4501))); return o; };
+    ui(panel(this, x, y, w, h, 0.97).setDepth(4500));
+    ui(tickFrame(this, x, y, w, h));
+    const PX = 90; // inner padding
+    const head = (title, sub) => {
+      ui(label(this, x + PX, y + 64, sub, { size: 13, color: Ink.faint }));
+      ui(track(this.add.text(x + PX, y + 96, title, displayStyle({ fontSize: '46px' })), 7));
+    };
 
     if (kind === 'journal') {
-      txt(48, 36, 'JOURNAL', uiStyle({ fontSize: '28px', color: '#ffe9b0' }));
+      head('JOURNAL', 'KEPT AGAINST THE QUIET');
+      ui(label(this, x + w - PX, y + 76, '[J] CLOSE', { size: 13, color: Ink.faint, origin: [1, 0] }));
       const entries = QuestSystem.journalEntries();
-      if (!entries.length) txt(48, 112, 'No quests yet. Talk to the people of Greyreach.', bodyStyle({ fontSize: '32px' }));
-      entries.forEach((e, i) => {
-        txt(48, 112 + i * 220, `${e.done ? '✓' : '◈'} ${e.quest.name}`, bodyStyle({ fontSize: '36px', color: e.done ? '#8aa88a' : '#ffe9b0' }));
-        txt(48, 168 + i * 220, e.done ? 'Complete.' : (e.stageDef?.journal ?? ''), bodyStyle({ fontSize: '30px', color: Colors.text, wordWrap: { width: w - 120 } }));
-      });
-      txt(48, h - 68, '[J] close', uiStyle({ fontSize: '24px', color: Colors.textDim }));
+      let ey = y + 220;
+      if (!entries.length) {
+        ui(this.add.text(x + PX, ey, 'No quests yet. Talk to the people of the Crossing.',
+          proseStyle({ fontSize: '28px', fontStyle: 'italic', color: Ink.dim })));
+      }
+      for (const e of entries) {
+        ui(this.add.text(x + PX, ey + 6, e.done ? '◇' : '◆',
+          monoStyle({ fontSize: '15px', color: e.done ? Ink.faint : Ink.accentBright })));
+        ui(this.add.text(x + PX + 44, ey, e.quest.name,
+          displayStyle({ fontSize: '36px', color: e.done ? Ink.faint : Ink.ink })));
+        const body = ui(this.add.text(x + PX + 44, ey + 56,
+          e.done ? 'Concluded.' : (e.stageDef?.journal ?? ''),
+          proseStyle({ fontSize: '26px', color: Ink.dim, wordWrap: { width: w - PX * 2 - 44 } })));
+        ey += 56 + body.height + 44;
+      }
     } else {
-      txt(48, 36, 'PARTY & PACK', uiStyle({ fontSize: '28px', color: '#ffe9b0' }));
+      head('PARTY & PACK', 'THE COMPANY, COUNTED');
+      ui(label(this, x + w - PX, y + 76, '[C] CLOSE', { size: 13, color: Ink.faint, origin: [1, 0] }));
       GameState.fullParty().forEach((m, i) => {
-        const cx = 48 + i * 430;
+        const cx = x + PX + i * 540, cy = y + 210;
+        ui(this.add.text(cx, cy, m.name, displayStyle({ fontSize: '38px' })));
         const race = this.reg.races.get(m.raceId)?.name ?? m.raceId;
         const klass = this.reg.classes.get(m.classId)?.name ?? m.classId;
-        txt(cx, 104, `${m.name}${m.isPlayer ? ' (you)' : ''}`, bodyStyle({ fontSize: '32px', color: '#ffe9b0' }));
-        txt(cx, 152, `${race} ${klass}`, uiStyle({ fontSize: '24px', color: Colors.textDim }));
-        txt(cx, 196, `HP ${m.hp}/${m.maxHp}  Focus ${m.focus}/${m.maxFocus}\nDef ${m.defense}  Spd ${m.speed}`, uiStyle({ fontSize: '24px', lineSpacing: 8 }));
-        const attrs = [...this.reg.attributes.values()].map((a) => `${a.abbr} ${m.attributes[a.id]}`).join('  ');
-        txt(cx, 280, attrs, uiStyle({ fontSize: '24px', color: '#b8c8a0' }));
+        ui(label(this, cx, cy + 54, `${race} ${klass}${m.isPlayer ? ' · YOU' : ''}`, { size: 13, color: Ink.faint }));
+        const hpBar = statBar(this, cx, cy + 106, 320, 8, Palette.accent);
+        hpBar.update(m.hp, m.maxHp);
+        ui(hpBar.gameObject);
+        ui(this.add.text(cx + 340, cy + 98, `${m.hp} / ${m.maxHp}`, monoStyle({ fontSize: '15px', color: Ink.dim })));
+        const focusBar = statBar(this, cx, cy + 134, 320, 6, Palette.brass);
+        focusBar.update(m.focus, m.maxFocus);
+        ui(focusBar.gameObject);
+        ui(this.add.text(cx + 340, cy + 124, `${m.focus} ◈`, monoStyle({ fontSize: '15px', color: Ink.brass })));
+        const attrs = [...this.reg.attributes.values()].map((a) => `${a.abbr} ${m.attributes[a.id]}`).join('   ');
+        ui(label(this, cx, cy + 176, `DEF ${m.defense}  ·  SPD ${m.speed}     ${attrs}`, { size: 14, color: Ink.dim }));
         const abil = m.abilities.map((a) => this.reg.abilities.get(a)?.name ?? a).join('\n');
-        txt(cx, 328, abil, uiStyle({ fontSize: '24px', color: '#c8b8d8', lineSpacing: 8 }));
+        ui(this.add.text(cx, cy + 222, abil, proseStyle({ fontSize: '24px', color: Ink.dim, lineSpacing: 8 })));
       });
-      txt(48, 580, 'SKILLS (you)', uiStyle({ fontSize: '24px', color: Colors.textDim }));
+      let sy = y + 620;
+      ui(label(this, x + PX, sy, 'SKILLS — YOU', { size: 13, color: Ink.faint }));
+      ui(this.hairlineIn(x + PX, sy + 34, w - PX * 2));
       const p = GameState.player;
-      const skills = [...this.reg.skills.values()].map((s) => `${s.name} ${p.skills[s.id]}`).join('   ');
-      txt(48, 620, skills, uiStyle({ fontSize: '26px', color: Colors.text, wordWrap: { width: w - 120 }, lineSpacing: 10 }));
-      txt(48, 740, 'PACK', uiStyle({ fontSize: '24px', color: Colors.textDim }));
+      const skills = [...this.reg.skills.values()];
+      skills.forEach((s, i) => {
+        const col = i % 4, row = Math.floor(i / 4);
+        const sx = x + PX + col * 400;
+        ui(this.add.text(sx, sy + 56 + row * 46, s.name, proseStyle({ fontSize: '24px', color: Ink.dim })));
+        ui(this.add.text(sx + 310, sy + 60 + row * 46, String(p.skills[s.id]), monoStyle({ fontSize: '17px', color: Ink.ink })));
+      });
+      sy += 56 + Math.ceil(skills.length / 4) * 46 + 40;
+      ui(label(this, x + PX, sy, 'PACK', { size: 13, color: Ink.faint }));
+      ui(this.hairlineIn(x + PX, sy + 34, w - PX * 2));
       const inv = Object.entries(GameState.inventory)
-        .map(([id, qty]) => `${this.reg.items.get(id)?.name ?? id}${qty > 1 ? ` ×${qty}` : ''}`).join(',   ') || 'Empty.';
-      txt(48, 780, inv, bodyStyle({ fontSize: '30px', wordWrap: { width: w - 120 } }));
-      txt(48, h - 68, '[C] close', uiStyle({ fontSize: '24px', color: Colors.textDim }));
+        .map(([id, qty]) => `${this.reg.items.get(id)?.name ?? id}${qty > 1 ? ` ×${qty}` : ''}`).join('   ·   ') || 'Empty.';
+      ui(this.add.text(x + PX, sy + 54, inv, proseStyle({ fontSize: '26px', wordWrap: { width: w - PX * 2 } })));
     }
     this.uiPanel = { kind, objects };
+  }
+
+  /** Hairline used inside the overlay panels (kept here for depth routing). */
+  hairlineIn(x, y, w) {
+    const g = this.add.graphics();
+    g.lineStyle(2, Palette.line, 1);
+    g.lineBetween(x, y, x + w, y);
+    return g;
   }
 }

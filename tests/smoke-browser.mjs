@@ -46,6 +46,10 @@ await page.setRequestInterception(true);
 page.on('request', (req) => {
   if (req.url().includes('cdn.jsdelivr.net') && req.url().includes('phaser')) {
     req.respond({ status: 200, contentType: 'text/javascript', body: phaserJs });
+  } else if (req.url().includes('fonts.googleapis.com') || req.url().includes('fonts.gstatic.com')) {
+    // UI webfonts are unreachable offline; serve empty CSS so the page falls
+    // back to system serif/mono without console noise (BootScene tolerates it)
+    req.respond({ status: 200, contentType: 'text/css', body: '/* fonts unavailable offline */' });
   } else req.continue();
 });
 

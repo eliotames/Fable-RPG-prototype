@@ -73,6 +73,10 @@ only if the user explicitly asks about story content.
   match the generated texture exactly — Phaser builds the tileset's UV table from
   those declared numbers, and a mismatch crashes ExplorationScene.create with an
   opaque TypeError (the game appears to freeze when leaving character creation).
+- Low FPS (~20) that's identical idle vs. moving means the browser is
+  software-rendering WebGL, not that the game is heavy — check `chrome://gpu`
+  for "Hardware accelerated" before touching game code. The scene workload
+  itself holds 60fps even under CPU rendering on a fast machine.
 
 ## Conventions to preserve
 

@@ -1,12 +1,24 @@
 /**
- * Settings — display preferences for the UI chrome (vignette strength, film
- * grain). Pure presentation: values live in localStorage and are applied to
- * the DOM overlay layers defined in index.html. No game system reads these.
+ * Settings — presentation preferences (atmosphere, motion, type). Pure UI:
+ * values live in localStorage; consumers are the DOM overlays in index.html
+ * (vignette, grain), ui/effects.js (particles, animations), ui/Theme.js
+ * (typeface, font scale) and DialogueScene (letterbox). No game system reads
+ * these.
  */
 
 const KEY = 'wos-display-settings';
 
-export const DEFAULTS = { vignette: 55, grain: true };
+export const DEFAULTS = {
+  vignette: 55,        // 0–100 overlay opacity
+  grain: true,         // film grain overlay
+  particles: 100,      // 0–100 density of ambient motes/embers
+  animations: true,    // entrance/hover/parallax motion
+  fontScale: 100,      // 80–140 % applied to every text style
+  typeface: 'default', // 'default' (Source Code Pro) | 'literary' | 'legible'
+  letterbox: true,     // letterbox bars in dialogue
+};
+
+export const TYPEFACE_ORDER = ['default', 'literary', 'legible'];
 
 export const Settings = {
   data: { ...DEFAULTS },

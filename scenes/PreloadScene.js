@@ -45,7 +45,7 @@ export class PreloadScene extends Phaser.Scene {
 
     const barBg = this.add.rectangle(1280, 722, 840, 6, Palette.bg3);
     const bar = this.add.rectangle(1280 - 420, 722, 1, 6, Palette.brass).setOrigin(0, 0.5);
-    label(this, 1280, 668, 'LOADING CONTENT', { size: 16, color: Ink.faint, origin: [0.5, 0.5] });
+    label(this, 1280, 664, 'LOADING CONTENT', { size: 18, color: Ink.dim, origin: [0.5, 0.5] });
     this.load.on('progress', (v) => bar.setSize(Math.max(1, 840 * v), 6));
     this.load.on('complete', () => { barBg.destroy(); bar.destroy(); });
   }
@@ -80,13 +80,13 @@ export class PreloadScene extends Phaser.Scene {
   showErrors(problems) {
     console.error('Content validation failed:\n' + problems.join('\n'));
     this.cameras.main.setBackgroundColor('#14100c');
-    label(this, 80, 64, 'THE BOOT REFUSES', { size: 14, color: Ink.faint });
+    label(this, 80, 64, 'THE BOOT REFUSES', { size: 16, color: Ink.faint });
     const title = this.add.text(80, 100, 'CONTENT ERROR', displayStyle({ fontSize: '68px', color: Ink.accentBright }));
     track(title, 8);
     this.add.text(80, 210,
       'The game cannot start because content files failed validation.\n'
       + 'Fix the problems below (file → field: problem) and reload:',
-      proseStyle({ fontSize: '28px', color: Ink.dim }));
+      proseStyle({ fontSize: '30px', color: Ink.dim }));
     const shown = problems.slice(0, 24);
     const more = problems.length > shown.length ? `\n… and ${problems.length - shown.length} more (see console)` : '';
     this.add.text(80, 330, shown.join('\n') + more, {

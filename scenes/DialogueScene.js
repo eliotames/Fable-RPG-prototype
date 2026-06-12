@@ -15,6 +15,8 @@ import { evaluateConditions, applyEffects } from '../systems/Script.js';
 import { activeCheck, passiveCheck, difficultyLabel } from '../systems/CheckResolver.js';
 import { Palette, Ink, displayStyle, proseStyle, monoStyle, track } from '../ui/Theme.js';
 import { tickFrame, hairline, makeNotifier, label } from '../ui/widgets.js';
+import { Settings } from '../ui/Settings.js';
+import { staggerIn } from '../ui/effects.js';
 
 const BAR_H = 100;       // letterbox bars
 const COL_W = 1060;      // conversation column
@@ -45,12 +47,18 @@ export class DialogueScene extends Phaser.Scene {
 
     this.add.rectangle(0, 0, sw, sh, 0x000000, 0.25).setOrigin(0);
     this.makeColumnGradient();
-    this.add.image(this.colX, 0, 'dialogue-gradient').setOrigin(0).setDisplaySize(COL_W, sh);
-    // letterbox bars over everything static
-    this.add.rectangle(0, 0, sw, BAR_H, 0x0a0806).setOrigin(0);
-    this.add.rectangle(0, sh - BAR_H, sw, BAR_H, 0x0a0806).setOrigin(0);
-    hairline(this, 0, BAR_H, sw, 0x15110d);
-    hairline(this, 0, sh - BAR_H, sw, 0x15110d);
+    const column = this.add.image(this.colX, 0, 'dialogue-gradient').setOrigin(0).setDisplaySize(COL_W, sh);
+    if (Settings.data.letterbox !== false) {
+      // letterbox bars over everything static
+      this.add.rectangle(0, 0, sw, BAR_H, 0x0a0806).setOrigin(0);
+      this.add.rectangle(0, sh - BAR_H, sw, BAR_H, 0x0a0806).setOrigin(0);
+      hairline(this, 0, BAR_H, sw, 0x15110d);
+      hairline(this, 0, sh - BAR_H, sw, 0x15110d);
+    }
+    if (Settings.data.animations !== false) {
+      column.setAlpha(0);
+      this.tweens.add({ targets: column, alpha: 1, duration: 320, ease: 'Quad.easeOut' });
+    }
 
     this.hooks = {
       notify: this.notify,
@@ -113,11 +121,11 @@ export class DialogueScene extends Phaser.Scene {
 
     if (node.speaker) {
       this.drawSpeakerFrame(put, node.speaker);
-      put(label(this, this.textX, y, node.speaker, { size: 18, color: Ink.dim }));
-      y += 50;
+      put(label(this, this.textX, y, node.speaker, { size: 20, color: Ink.dim }));
+      y += 54;
     }
     const body = put(this.add.text(this.textX, y, node.text,
-      proseStyle({ fontSize: '27px', wordWrap: { width: TEXT_W } })));
+      proseStyle({ fontSize: '30px', wordWrap: { width: TEXT_W } })));
     y += body.height + 36;
 
     // Passive voices: a skill speaks up if the PLAYER's skill meets the bar.
@@ -127,7 +135,7 @@ export class DialogueScene extends Phaser.Scene {
       const skill = this.reg.skills.get(v.skill);
       const line = put(this.add.text(this.textX, y, `${skill.name} — ${v.text}`,
         proseStyle({
-          fontSize: '25px', fontStyle: 'italic',
+          fontSize: '28px', fontStyle: 'italic',
           color: skill.voiceColor ?? Ink.brass, wordWrap: { width: TEXT_W },
         })));
       y += line.height + 22;
@@ -146,6 +154,7 @@ export class DialogueScene extends Phaser.Scene {
       bottom -= 26;
     }
     put(hairline(this, this.textX, bottom, TEXT_W));
+    staggerIn(this, this.nodeObjects, { rise: 14, delayStep: 22, duration: 240 });
 
     this.input.keyboard.off('keydown');
     this.input.keyboard.on('keydown', (ev) => {
@@ -166,7 +175,7 @@ export class DialogueScene extends Phaser.Scene {
       displayStyle({ fontSize: '170px', color: Ink.faint })).setOrigin(0.5));
     initial.setAlpha(0.9);
     const name = put(this.add.text(x, y + h + 18, speaker,
-      displayStyle({ fontSize: '34px', backgroundColor: '#0c0a08cc', padding: { x: 10, y: 4 } })));
+      displayStyle({ fontSize: '36px', backgroundColor: '#0c0a08cc', padding: { x: 12, y: 5 } })));
     track(name, 2);
   }
 
@@ -176,7 +185,7 @@ export class DialogueScene extends Phaser.Scene {
    */
   makeOption(put, opt, i) {
     const parts = [];
-    const num = put(this.add.text(0, 0, `${i + 1}.`, monoStyle({ fontSize: '18px', color: Ink.faint })));
+    const num = put(this.add.text(0, 0, `${i + 1}.`, monoStyle({ fontSize: '20px', color: Ink.faint })));
     parts.push({ o: num, dx: 0, dy: 4 });
 
     let dy = 0;
@@ -187,12 +196,12 @@ export class DialogueScene extends Phaser.Scene {
       const likely = value + die / 2 >= opt.check.dc;
       const tag = put(this.add.text(0, 0,
         `[${skill.name.toUpperCase()} — ${difficultyLabel(this.reg.tuning, opt.check.dc).toUpperCase()} ${opt.check.dc}]`,
-        monoStyle({ fontSize: '17px', color: likely ? Ink.verdigris : Ink.accentBright })));
+        monoStyle({ fontSize: '19px', color: likely ? Ink.verdigris : Ink.accentBright })));
       parts.push({ o: tag, dx: 46, dy: 2 });
       dy = tag.height + 10;
     }
     const body = put(this.add.text(0, 0, opt.text,
-      proseStyle({ fontSize: '25px', color: Ink.dim, wordWrap: { width: TEXT_W - 46 } })));
+      proseStyle({ fontSize: '28px', color: Ink.dim, wordWrap: { width: TEXT_W - 46 } })));
     parts.push({ o: body, dx: 46, dy });
     this.wireOption([num, body], () => this.choose(opt));
 
@@ -205,7 +214,7 @@ export class DialogueScene extends Phaser.Scene {
   /** Linear node: single continue → node.next, or end of conversation. */
   makeContinue(put, node) {
     const body = put(this.add.text(0, 0, node.next ? '(Continue.)' : '(Leave.)',
-      proseStyle({ fontSize: '25px', fontStyle: 'italic', color: Ink.dim })));
+      proseStyle({ fontSize: '28px', fontStyle: 'italic', color: Ink.dim })));
     this.wireOption([body], () => {
       if (node.next) this.enterNode(node.next);
       else this.close();
@@ -250,7 +259,7 @@ export class DialogueScene extends Phaser.Scene {
     const cx = this.colX + COL_W / 2 + 40;
     const my = this.scale.height / 2;
     const title = label(this, cx, my - 130, `${skill.name} — ${difficultyLabel(this.reg.tuning, check.dc)} ${check.dc}`,
-      { size: 18, color: Ink.brass, origin: [0.5, 0.5] });
+      { size: 20, color: Ink.brass, origin: [0.5, 0.5] });
     const rollText = this.add.text(cx, my - 30, '…', displayStyle({ fontSize: '64px', color: Ink.ink })).setOrigin(0.5);
     const verdict = this.add.text(cx, my + 80, '', displayStyle({ fontSize: '52px' })).setOrigin(0.5);
     track(verdict, 8);

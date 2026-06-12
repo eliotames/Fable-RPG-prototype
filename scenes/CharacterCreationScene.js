@@ -9,6 +9,7 @@ import { GameState } from '../systems/GameState.js';
 import { buildCharacter, baseAttributes } from '../systems/CharacterFactory.js';
 import { Palette, Ink, displayStyle, proseStyle, monoStyle, track } from '../ui/Theme.js';
 import { label, hairline, rule, frameButton } from '../ui/widgets.js';
+import { addMotes, fadeIn } from '../ui/effects.js';
 
 const PAD_X = 173;
 const COL2_X = 790, COL2_W = 600;
@@ -31,16 +32,18 @@ export class CharacterCreationScene extends Phaser.Scene {
     this.dist = baseAttributes(reg);
 
     this.add.rectangle(0, 0, this.scale.width, this.scale.height, Palette.bg1).setOrigin(0);
+    fadeIn(this, 300);
+    addMotes(this, { count: 14, depth: 1 });
 
     // header
-    label(this, PAD_X, 100, 'CHARACTER CREATION', { size: 16, color: Ink.faint });
+    label(this, PAD_X, 100, 'CHARACTER CREATION', { size: 18, color: Ink.faint });
     track(this.add.text(PAD_X, 136, 'FORGE YOUR WANDERER', displayStyle({ fontSize: '56px' })), 8);
     label(this, this.scale.width - PAD_X, 112, 'WHO WALKS INTO THE QUIET — I OF I',
-      { size: 16, color: Ink.faint, origin: [1, 0] });
+      { size: 18, color: Ink.faint, origin: [1, 0] });
 
     // --- column 1: name, race, class pickers -------------------------------
     let y = 320;
-    label(this, PAD_X, y, 'NAME — CLICK TO EDIT', { size: 13, color: Ink.faint });
+    label(this, PAD_X, y, 'NAME — CLICK TO EDIT', { size: 15, color: Ink.faint });
     this.nameText = this.add.text(PAD_X, y + 32, '', displayStyle({ fontSize: '42px' }))
       .setInteractive({ useHandCursor: true })
       .on('pointerdown', () => { this.typing = true; this.redrawAll(); });
@@ -48,27 +51,27 @@ export class CharacterCreationScene extends Phaser.Scene {
     this.input.keyboard.on('keydown', (ev) => this.onKey(ev));
 
     y += 160;
-    label(this, PAD_X, y, 'RACE', { size: 13, color: Ink.faint });
+    label(this, PAD_X, y, 'RACE', { size: 15, color: Ink.faint });
     this.raceButtons = [...reg.races.values()].map((race, i) =>
-      this.pickerButton(PAD_X, y + 44 + i * 56, () => { this.raceId = race.id; this.redrawAll(); }));
+      this.pickerButton(PAD_X, y + 44 + i * 58, () => { this.raceId = race.id; this.redrawAll(); }));
 
-    const classY = y + 44 + reg.races.size * 56 + 50;
-    label(this, PAD_X, classY, 'CLASS', { size: 13, color: Ink.faint });
+    const classY = y + 44 + reg.races.size * 58 + 50;
+    label(this, PAD_X, classY, 'CLASS', { size: 15, color: Ink.faint });
     this.classButtons = [...reg.classes.values()].map((klass, i) =>
-      this.pickerButton(PAD_X, classY + 44 + i * 56, () => { this.classId = klass.id; this.redrawAll(); }));
+      this.pickerButton(PAD_X, classY + 44 + i * 58, () => { this.classId = klass.id; this.redrawAll(); }));
 
     // --- column 2: attribute points ----------------------------------------
-    label(this, COL2_X, 320, 'ATTRIBUTES', { size: 13, color: Ink.faint });
+    label(this, COL2_X, 320, 'ATTRIBUTES', { size: 15, color: Ink.faint });
     this.poolText = this.add.text(COL2_X + COL2_W, 312, '',
-      monoStyle({ fontSize: '14px', color: Ink.dim })).setOrigin(1, 0);
+      monoStyle({ fontSize: '16px', color: Ink.dim })).setOrigin(1, 0);
     track(this.poolText, 3);
-    this.poolNum = this.add.text(0, 304, '', displayStyle({ fontSize: '30px', color: Ink.brass })).setOrigin(1, 0);
+    this.poolNum = this.add.text(0, 302, '', displayStyle({ fontSize: '32px', color: Ink.brass })).setOrigin(1, 0);
 
     hairline(this, COL2_X, 360, COL2_W);
     this.attrRows = [...reg.attributes.values()].map((attr, i) => {
       const rowY = 360 + i * 88, cy = rowY + 44;
-      const name = label(this, COL2_X + 2, cy - 11, attr.name, { size: 17, color: Ink.dim });
-      const bonus = this.add.text(COL2_X + 230, cy, '', monoStyle({ fontSize: '16px', color: Ink.brass })).setOrigin(0, 0.5);
+      const name = label(this, COL2_X + 2, cy - 12, attr.name, { size: 19, color: Ink.dim });
+      const bonus = this.add.text(COL2_X + 240, cy, '', monoStyle({ fontSize: '18px', color: Ink.brass })).setOrigin(0, 0.5);
       const value = this.add.text(COL2_X + 380, cy, '', displayStyle({ fontSize: '44px' })).setOrigin(0.5);
       const minus = this.stepBtn(COL2_X + 500, cy, '−', () => this.adjust(attr.id, -1));
       const plus = this.stepBtn(COL2_X + 572, cy, '+', () => this.adjust(attr.id, +1));
@@ -81,7 +84,7 @@ export class CharacterCreationScene extends Phaser.Scene {
     this.derivedY = ruleY + 50;
     this.skillsY = this.derivedY + 150;
     label(this, COL2_X, this.skillsY, 'SKILLS — THEY GATE DIALOGUE, PUZZLES, INSIGHT',
-      { size: 13, color: Ink.faint });
+      { size: 15, color: Ink.faint });
 
     // --- column 3 (prose) and live numbers are redrawn wholesale ------------
     this.descObjects = [];
@@ -97,7 +100,7 @@ export class CharacterCreationScene extends Phaser.Scene {
   }
 
   pickerButton(x, y, onClick) {
-    const t = this.add.text(x, y, '', displayStyle({ fontSize: '30px', color: Ink.faint }))
+    const t = this.add.text(x, y, '', displayStyle({ fontSize: '32px', color: Ink.faint }))
       .setInteractive({ useHandCursor: true })
       .on('pointerdown', onClick);
     t.on('pointerover', () => { if (!t.selected) t.setColor(Ink.dim); });
@@ -188,18 +191,18 @@ export class CharacterCreationScene extends Phaser.Scene {
     const derived = [['VITALITY', ch.maxHp], ['FOCUS', ch.maxFocus], ['DEFENSE', ch.defense], ['SPEED', ch.speed]];
     derived.forEach(([name, value], i) => {
       const dx = COL2_X + i * 158;
-      put(label(this, dx, this.derivedY, name, { size: 12, color: Ink.faint }));
-      put(this.add.text(dx, this.derivedY + 26, String(value), displayStyle({ fontSize: '40px' })));
+      put(label(this, dx, this.derivedY, name, { size: 14, color: Ink.faint }));
+      put(this.add.text(dx, this.derivedY + 28, String(value), displayStyle({ fontSize: '40px' })));
     });
 
     const skills = [...reg.skills.values()];
     skills.forEach((s, i) => {
       const col = Math.floor(i / Math.ceil(skills.length / 2)), rowI = i % Math.ceil(skills.length / 2);
-      const sx = COL2_X + col * 310, sy = this.skillsY + 40 + rowI * 42;
+      const sx = COL2_X + col * 310, sy = this.skillsY + 42 + rowI * 44;
       const boosted = ch.skills[s.id] > ch.attributes[s.attribute];
-      put(this.add.text(sx, sy, s.name, proseStyle({ fontSize: '22px', color: Ink.dim })));
-      put(this.add.text(sx + 250, sy + 2, `${ch.skills[s.id]}${boosted ? ' ◆' : ''}`,
-        monoStyle({ fontSize: '17px', color: boosted ? Ink.brass : Ink.ink })));
+      put(this.add.text(sx, sy, s.name, proseStyle({ fontSize: '25px', color: Ink.dim })));
+      put(this.add.text(sx + 250, sy + 3, `${ch.skills[s.id]}${boosted ? ' ◆' : ''}`,
+        monoStyle({ fontSize: '19px', color: boosted ? Ink.brass : Ink.ink })));
     });
 
     // prose column (column 3)
@@ -208,47 +211,54 @@ export class CharacterCreationScene extends Phaser.Scene {
     const putDesc = (o) => { this.descObjects.push(o); return o; };
     const fmtBonuses = (bonuses, lookup) => Object.entries(bonuses)
       .filter(([k]) => k !== '//')
-      .map(([k, v]) => `+${v} ${lookup.get(k)?.name ?? k}`).join('  ·  ') || '—';
+      .map(([k, v]) => `+${v} ${lookup.get(k)?.name ?? k}`).join('  ·  ');
 
     let y = 320;
-    const block = (title, body, bonusLine) => {
+    // labelled bonus row (ATTRIBUTES / SKILLS kept distinct); skipped when empty
+    const bonusRow = (name, line) => {
+      if (!line) return;
+      putDesc(label(this, COL3_X, y + 3, name, { size: 13, color: Ink.faint }));
+      const values = putDesc(this.add.text(COL3_X + 175, y, line,
+        monoStyle({ fontSize: '17px', color: Ink.brass, wordWrap: { width: COL3_W - 175 } })));
+      y += Math.max(values.height, 24) + 12;
+    };
+    const block = (title, body, attrBonuses, skillBonuses) => {
       const head = putDesc(this.add.text(COL3_X, y, title.toUpperCase(),
         displayStyle({ fontSize: '40px' })));
       track(head, 4);
       y += head.height + 14;
       const prose = putDesc(this.add.text(COL3_X, y, body,
-        proseStyle({ fontSize: '24px', color: Ink.dim, wordWrap: { width: COL3_W } })));
-      y += prose.height + 16;
-      const bonuses = putDesc(this.add.text(COL3_X, y, bonusLine,
-        monoStyle({ fontSize: '15px', color: Ink.brass, wordWrap: { width: COL3_W } })));
-      y += bonuses.height + 30;
+        proseStyle({ fontSize: '26px', color: Ink.dim, wordWrap: { width: COL3_W } })));
+      y += prose.height + 20;
+      bonusRow('ATTRIBUTES', fmtBonuses(attrBonuses, reg.attributes));
+      bonusRow('SKILLS', fmtBonuses(skillBonuses, reg.skills));
+      y += 20;
     };
-    block(race.name, race.desc,
-      `${fmtBonuses(race.attributeBonuses, reg.attributes)}   ${fmtBonuses(race.skillBonuses, reg.skills)}`);
+    block(race.name, race.desc, race.attributeBonuses, race.skillBonuses);
     putDesc(hairline(this, COL3_X, y, COL3_W));
     y += 32;
-    block(klass.name, klass.desc,
-      `${fmtBonuses(klass.attributeBonuses, reg.attributes)}   ${fmtBonuses(klass.skillBonuses, reg.skills)}`);
+    block(klass.name, klass.desc, klass.attributeBonuses, klass.skillBonuses);
 
     putDesc(label(this, COL3_X, y, 'ABILITIES', { size: 13, color: Ink.faint }));
     const abilityNames = klass.abilities.map((a) => reg.abilities.get(a)?.name ?? a).join('  ·  ');
-    const abil = putDesc(this.add.text(COL3_X, y + 30, abilityNames,
-      proseStyle({ fontSize: '23px', wordWrap: { width: COL3_W } })));
-    y += 30 + abil.height + 26;
+    const abil = putDesc(this.add.text(COL3_X + 175, y - 3, abilityNames,
+      proseStyle({ fontSize: '25px', wordWrap: { width: COL3_W - 175 } })));
+    y += Math.max(abil.height, 24) + 22;
 
     putDesc(label(this, COL3_X, y, 'GEAR', { size: 13, color: Ink.faint }));
     const gear = (klass.startingItems ?? [])
       .map((si) => `${reg.items.get(si.item)?.name ?? si.item}${si.qty > 1 ? ` ×${si.qty}` : ''}`).join('  ·  ') || '—';
-    putDesc(this.add.text(COL3_X, y + 30, gear, proseStyle({ fontSize: '23px', color: Ink.dim, wordWrap: { width: COL3_W } })));
+    putDesc(this.add.text(COL3_X + 175, y - 3, gear,
+      proseStyle({ fontSize: '25px', color: Ink.dim, wordWrap: { width: COL3_W - 175 } })));
 
     // begin button (label depends on points left)
     const ready = remaining === 0 && (this.name || '').trim().length > 0;
     this.beginButton?.destroy();
     this.beginNote?.destroy();
     this.beginNote = ready ? null : label(this,
-      this.scale.width - PAD_X - 150, this.scale.height - 142,
+      this.scale.width - PAD_X - 150, this.scale.height - 144,
       remaining > 0 ? `${remaining} POINT${remaining === 1 ? '' : 'S'} STILL TO ALLOT` : 'A NAME IS REQUIRED',
-      { size: 14, color: Ink.faint, origin: [0.5, 0.5] });
+      { size: 16, color: Ink.dim, origin: [0.5, 0.5] });
     this.beginButton = frameButton(this, this.scale.width - PAD_X - 150, this.scale.height - 84,
       'Begin — Step Onto the Crossing', {
         primary: true, disabled: !ready,

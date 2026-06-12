@@ -41,7 +41,8 @@ main.js               ← imports the scenes, builds the Phaser.Game
 scenes/   (9 files)   ← Boot, Preload, MainMenu, Options, CharacterCreation,
                         Exploration, Dialogue, Combat, End
 systems/  (11 files)  ← validation, content registry, factories, math
-ui/       (3 files)   ← theme (design tokens) + shared widgets + display settings
+ui/       (4 files)   ← theme (design tokens) + shared widgets + ambient
+                        effects + display settings (typeface, font scale, FX)
 data/                 ← ALL content: manifest.json, *.json, dialogue/, maps/
 ```
 

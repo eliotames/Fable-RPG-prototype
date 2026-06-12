@@ -18,9 +18,11 @@
 import { Settings } from '../ui/Settings.js';
 
 const FONT_PROBES = [
+  '400 24px "Source Code Pro"', '600 24px "Source Code Pro"',
   '500 64px Cormorant', '600 64px Cormorant',
   '400 32px "Crimson Pro"', 'italic 400 32px "Crimson Pro"',
   '400 24px "IBM Plex Mono"', '500 24px "IBM Plex Mono"',
+  '400 24px Roboto', '500 24px Roboto', '400 24px "Roboto Mono"',
 ];
 
 export class BootScene extends Phaser.Scene {
@@ -35,6 +37,7 @@ export class BootScene extends Phaser.Scene {
   create() {
     this.makeTileSheet();
     this.makeToken();
+    this.makeMote();
     Settings.load();
     Settings.apply();
     const fonts = (typeof document !== 'undefined' && document.fonts?.load)
@@ -78,6 +81,20 @@ export class BootScene extends Phaser.Scene {
     });
     g.generateTexture('tiles', W * defs.length, H);
     g.destroy();
+  }
+
+  /** Soft radial dot for ambient particles (ui/effects.js), tinted at use. */
+  makeMote() {
+    const S = 32;
+    const tex = this.textures.createCanvas('mote', S, S);
+    const ctx = tex.getContext();
+    const grad = ctx.createRadialGradient(S / 2, S / 2, 1, S / 2, S / 2, S / 2);
+    grad.addColorStop(0, 'rgba(255,255,255,1)');
+    grad.addColorStop(0.5, 'rgba(255,255,255,0.35)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, S, S);
+    tex.refresh();
   }
 
   makeToken() {

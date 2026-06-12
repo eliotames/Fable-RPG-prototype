@@ -4,6 +4,7 @@
  * All return plain Phaser game objects / containers / small apis.
  */
 import { Palette, Ink, monoStyle, track } from './Theme.js';
+import { Settings } from './Settings.js';
 
 /** Hairline-bordered panel with a near-black fill. */
 export function panel(scene, x, y, w, h, alpha = 0.92) {
@@ -51,7 +52,7 @@ export function rule(scene, cx, y, w, glyph = '◆') {
  * @param {{size?:number, color?:string, spacing?:number, origin?:[number,number]}} opts
  */
 export function label(scene, x, y, text, opts = {}) {
-  const size = opts.size ?? 16;
+  const size = opts.size ?? 18;
   const t = scene.add.text(x, y, String(text).toUpperCase(),
     monoStyle({ fontSize: `${size}px`, color: opts.color ?? Ink.dim }));
   track(t, opts.spacing ?? Math.round(size * 0.22));
@@ -86,7 +87,7 @@ export function textButton(scene, x, y, text, opts) {
  *          disabled?: boolean, size?: number, padX?: number, padY?: number}} opts
  */
 export function frameButton(scene, x, y, text, opts = {}) {
-  const size = opts.size ?? 16;
+  const size = opts.size ?? 18;
   const padX = opts.padX ?? 34, padY = opts.padY ?? 16;
   const c = scene.add.container(x, y);
   const prefix = opts.primary ? '◆  ' : '';
@@ -113,10 +114,16 @@ export function frameButton(scene, x, y, text, opts = {}) {
   c.on('pointerover', () => {
     t.setColor(Ink.ink);
     drawBorder(opts.primary ? Palette.accent : framed ? Palette.lineStrong : Palette.line, true);
+    if (Settings.data.animations !== false) {
+      scene.tweens.add({ targets: c, scale: 1.04, duration: 110, ease: 'Quad.easeOut' });
+    }
   });
   c.on('pointerout', () => {
     t.setColor(opts.primary ? Ink.ink : Ink.dim);
     drawBorder(opts.primary ? Palette.lineStrong : Palette.line, framed);
+    if (Settings.data.animations !== false) {
+      scene.tweens.add({ targets: c, scale: 1, duration: 110, ease: 'Quad.easeOut' });
+    }
   });
   c.on('pointerdown', () => opts.onClick?.());
   return c;
@@ -145,8 +152,8 @@ export function statBar(scene, x, y, w, h, color) {
 
 /** Floating notification that rises and fades (loot, quest updates). */
 export function toast(scene, text, index = 0) {
-  const t = scene.add.text(scene.scale.width / 2, 220 + index * 56, `◆  ${String(text).toUpperCase()}`,
-    monoStyle({ fontSize: '20px', color: Ink.ink, backgroundColor: '#0c0a08f0', padding: { x: 26, y: 14 } }))
+  const t = scene.add.text(scene.scale.width / 2, 220 + index * 60, `◆  ${String(text).toUpperCase()}`,
+    monoStyle({ fontSize: '22px', color: Ink.ink, backgroundColor: '#0c0a08f0', padding: { x: 26, y: 14 } }))
     .setOrigin(0.5, 0).setDepth(5000).setScrollFactor(0);
   track(t, 4);
   scene.tweens.add({

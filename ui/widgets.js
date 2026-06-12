@@ -9,7 +9,7 @@ export function panel(scene, x, y, w, h, alpha = 0.94) {
   const g = scene.add.graphics();
   g.fillStyle(Colors.panel, alpha);
   g.fillRect(x, y, w, h);
-  g.lineStyle(1, Colors.panelEdge, 1);
+  g.lineStyle(2, Colors.panelEdge, 1);
   g.strokeRect(x, y, w, h);
   return g;
 }
@@ -19,7 +19,7 @@ export function panel(scene, x, y, w, h, alpha = 0.94) {
  * @param {{onClick: Function, style?: object, disabled?: boolean}} opts
  */
 export function textButton(scene, x, y, label, opts) {
-  const style = uiStyle({ fontSize: '16px', ...opts.style });
+  const style = uiStyle({ fontSize: '32px', ...opts.style });
   const txt = scene.add.text(x, y, label, style);
   if (opts.disabled) {
     txt.setColor(Colors.disabled);
@@ -47,7 +47,7 @@ export function statBar(scene, x, y, w, h, color, bgColor = 0x22242c) {
       const frac = max > 0 ? Math.max(0, Math.min(1, value / max)) : 0;
       g.fillStyle(color, 1);
       g.fillRect(x, y, w * frac, h);
-      g.lineStyle(1, Colors.panelEdge, 1);
+      g.lineStyle(2, Colors.panelEdge, 1);
       g.strokeRect(x, y, w, h);
     },
     destroy() { g.destroy(); },
@@ -57,11 +57,11 @@ export function statBar(scene, x, y, w, h, color, bgColor = 0x22242c) {
 
 /** Floating notification text that rises and fades (loot, quest updates). */
 export function toast(scene, text, index = 0) {
-  const t = scene.add.text(scene.scale.width / 2, 110 + index * 26, text,
-    uiStyle({ fontSize: '16px', color: '#ffe9b0', backgroundColor: '#14161dee', padding: { x: 10, y: 4 } }))
+  const t = scene.add.text(scene.scale.width / 2, 220 + index * 52, text,
+    uiStyle({ fontSize: '32px', color: '#ffe9b0', backgroundColor: '#14161dee', padding: { x: 20, y: 8 } }))
     .setOrigin(0.5, 0).setDepth(5000).setScrollFactor(0);
   scene.tweens.add({
-    targets: t, y: t.y - 18, alpha: 0, delay: 2200, duration: 700,
+    targets: t, y: t.y - 36, alpha: 0, delay: 2200, duration: 700,
     onComplete: () => t.destroy(),
   });
   return t;

@@ -12,7 +12,7 @@ import { activeCheck, passiveCheck, difficultyLabel } from '../systems/CheckReso
 import { Colors, uiStyle, bodyStyle } from '../ui/Theme.js';
 import { panel, makeNotifier } from '../ui/widgets.js';
 
-const PANEL_H = 320;
+const PANEL_H = 640;
 
 export class DialogueScene extends Phaser.Scene {
   constructor() {
@@ -79,32 +79,32 @@ export class DialogueScene extends Phaser.Scene {
     this.clearNode();
     this.locked = false;
     const sw = this.scale.width;
-    let y = this.panelTop + 18;
+    let y = this.panelTop + 36;
     const put = (obj) => { this.nodeObjects.push(obj); return obj; };
 
     if (node.speaker) {
-      put(this.add.text(36, y, node.speaker.toUpperCase(), uiStyle({ fontSize: '14px', color: Colors.speaker, fontStyle: 'bold' })));
-      y += 24;
+      put(this.add.text(72, y, node.speaker.toUpperCase(), uiStyle({ fontSize: '28px', color: Colors.speaker, fontStyle: 'bold' })));
+      y += 48;
     }
-    const body = put(this.add.text(36, y, node.text, bodyStyle({ fontSize: '17px', wordWrap: { width: sw - 460 } })));
-    y += body.height + 12;
+    const body = put(this.add.text(72, y, node.text, bodyStyle({ fontSize: '34px', wordWrap: { width: sw - 920 } })));
+    y += body.height + 24;
 
     // Passive voices: a skill speaks up if the PLAYER's skill meets the bar.
     for (const v of node.voices ?? []) {
       const value = GameState.player?.skills[v.skill] ?? 0;
       if (!passiveCheck(value, v.dc)) continue;
       const skill = this.reg.skills.get(v.skill);
-      const line = put(this.add.text(54, y, `${skill.name} — ${v.text}`,
-        bodyStyle({ fontSize: '15px', fontStyle: 'italic', color: skill.voiceColor ?? Colors.voice, wordWrap: { width: sw - 480 } })));
-      y += line.height + 8;
+      const line = put(this.add.text(108, y, `${skill.name} — ${v.text}`,
+        bodyStyle({ fontSize: '30px', fontStyle: 'italic', color: skill.voiceColor ?? Colors.voice, wordWrap: { width: sw - 960 } })));
+      y += line.height + 16;
     }
 
     // Options (right column), filtered by conditions.
     const options = (node.options ?? []).filter((o) => evaluateConditions(o.conditions, this.reg));
-    const ox = sw - 396;
-    let oy = this.panelTop + 18;
-    put(this.add.text(ox, oy, options.length ? 'YOU MIGHT…' : '', uiStyle({ fontSize: '11px', color: Colors.textDim })));
-    oy += 20;
+    const ox = sw - 792;
+    let oy = this.panelTop + 36;
+    put(this.add.text(ox, oy, options.length ? 'YOU MIGHT…' : '', uiStyle({ fontSize: '22px', color: Colors.textDim })));
+    oy += 40;
 
     if (!options.length) {
       // Linear node: single continue → node.next, or end of conversation.
@@ -125,7 +125,7 @@ export class DialogueScene extends Phaser.Scene {
         color = Colors.check;
       }
       const h = this.makeOption(put, ox, oy, label, color, () => this.choose(opt));
-      oy += h + 10;
+      oy += h + 20;
     });
 
     this.input.keyboard.off('keydown');
@@ -137,7 +137,7 @@ export class DialogueScene extends Phaser.Scene {
 
   makeOption(put, x, y, label, color, onClick) {
     const txt = put(this.add.text(x, y, label,
-      bodyStyle({ fontSize: '15px', color, wordWrap: { width: 360 } })))
+      bodyStyle({ fontSize: '30px', color, wordWrap: { width: 720 } })))
       .setInteractive({ useHandCursor: true });
     txt.on('pointerover', () => txt.setColor('#ffe9b0'));
     txt.on('pointerout', () => txt.setColor(color));
@@ -164,9 +164,9 @@ export class DialogueScene extends Phaser.Scene {
     const sw = this.scale.width;
     const cx = sw / 2;
     const my = this.panelTop + PANEL_H / 2;
-    const title = this.add.text(cx, my - 56, `${skill.name} check`, uiStyle({ fontSize: '15px', color: Colors.check })).setOrigin(0.5);
-    const rollText = this.add.text(cx, my - 16, '…', bodyStyle({ fontSize: '26px', color: '#ffe9b0' })).setOrigin(0.5);
-    const verdict = this.add.text(cx, my + 32, '', bodyStyle({ fontSize: '22px', fontStyle: 'bold' })).setOrigin(0.5);
+    const title = this.add.text(cx, my - 112, `${skill.name} check`, uiStyle({ fontSize: '30px', color: Colors.check })).setOrigin(0.5);
+    const rollText = this.add.text(cx, my - 32, '…', bodyStyle({ fontSize: '52px', color: '#ffe9b0' })).setOrigin(0.5);
+    const verdict = this.add.text(cx, my + 64, '', bodyStyle({ fontSize: '44px', fontStyle: 'bold' })).setOrigin(0.5);
     this.nodeObjects.push(title, rollText, verdict);
 
     // little dice shuffle, then the real result

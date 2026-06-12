@@ -21,8 +21,8 @@ import * as Script from './systems/Script.js';
 const config = {
   type: Phaser.AUTO,
   parent: 'game', // Phaser falls back to <body> if no #game element exists
-  width: 1280,
-  height: 720,
+  width: 2560,
+  height: 1440,
   backgroundColor: '#0b0c10',
   scale: {
     mode: Phaser.Scale.FIT,

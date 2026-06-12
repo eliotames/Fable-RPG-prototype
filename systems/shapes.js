@@ -181,10 +181,10 @@ export const shapes = {
     nodes: S.dict(dialogueNodeShape),
   }),
 
-  /** Tiled-format isometric map; only the fields the engine relies on are checked. */
+  /** Tiled-format top-down map; only the fields the engine relies on are checked. */
   map: S.obj(
     {
-      orientation: S.oneOf(['isometric']),
+      orientation: S.oneOf(['orthogonal']),
       width: S.int, height: S.int, tilewidth: S.int, tileheight: S.int,
       layers: S.arr(S.any), tilesets: S.arr(S.any),
     },
@@ -212,6 +212,7 @@ export const shapes = {
         { maxSize: S.int, healAfterCombat: S.bool },
         { optional: { reviveHpFraction: S.num } }
       ),
+      exploration: S.obj({ zoomLevels: S.arr(S.num), zoomDefaultIndex: S.int, zoomTweenMs: S.num }),
     },
     { open: true }
   ),

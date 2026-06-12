@@ -68,7 +68,7 @@ only if the user explicitly asks about story content.
 
 - The game renders natively at **2560×1440**; all scene/UI coordinates and font
   sizes are authored in that space (`Scale.FIT` letterboxes other window sizes).
-- BootScene generates the iso tileset at **128×64 per tile**. The map JSON's
+- BootScene generates the top-down tileset at **128×128 per tile**. The map JSON's
   embedded tileset (`tilewidth`, `tileheight`, `imagewidth`, `imageheight`) must
   match the generated texture exactly — Phaser builds the tileset's UV table from
   those declared numbers, and a mismatch crashes ExplorationScene.create with an
@@ -77,6 +77,36 @@ only if the user explicitly asks about story content.
   software-rendering WebGL, not that the game is heavy — check `chrome://gpu`
   for "Hardware accelerated" before touching game code. The scene workload
   itself holds 60fps even under CPU rendering on a fast machine.
+
+## Camera & dual-camera rules (ExplorationScene)
+
+- Phaser camera zoom scales `scrollFactor(0)` objects too, so ExplorationScene
+  runs **two cameras**: main = world (zooms, follows), `uiCam` = fixed HUD.
+  Both render every object they don't ignore, so **every game object created in
+  that scene must pass through `asWorld()` or `asUI()`** — an unrouted object
+  renders twice (once zoomed, once not). Toasts are routed via the wrapped
+  `this.notify`; `makeNotifier` in `ui/widgets.js` returns the toast to allow it.
+- `camera.setBounds` applies instantly; changing bounds while the camera sits
+  clamped against them snaps the scroll in one frame. `stepZoom` therefore
+  tweens `cam.zoom` as a plain property and re-derives bounds via
+  `applyCameraBounds(cam.zoom)` in `onUpdate` — don't "simplify" it back to the
+  one-shot `zoomTo` effect + single `setBounds`.
+- A view larger than the camera bounds gets pinned to the bounds' **top-left
+  corner**, not centered. `applyCameraBounds` grows bounds to the view size at
+  far zooms so the map stays centered.
+- The smoke test's zoom step assumes `exploration.zoomLevels` is ordered
+  nearest → farthest and fails if >50% of the transition's camera pan lands in
+  a single frame — revisit it when touching zoom behavior.
+
+## Screenshot recipe (caught bugs the 29 tests can't)
+
+Throwaway puppeteer script against a local static server (pattern in git history,
+e.g. the perspective-change session): viewport 2560×1440, intercept the CDN
+Phaser request and answer it from `/tmp/smoke/node_modules/phaser/dist/`, boot to
+MainMenu, `scene.start('CharacterCreation')`, set `cc.name/raceId/classId/dist`
+(`dist` must spend the full creation pool or `confirm()` refuses), wait for
+Exploration, screenshot. Layout/framing bugs (camera void, off-center clamping)
+only show up this way.
 
 ## Conventions to preserve
 
@@ -88,3 +118,9 @@ only if the user explicitly asks about story content.
   exhaustive; new cross-file references get a check in `ContentRegistry.finalize`.
 - Engine code must never name a specific race/NPC/item/quest — if you're typing a
   content id into `scenes/` or `systems/`, it belongs in JSON instead.
+- Controls live in four places that must stay aligned: the `addKeys` list and the
+  HUD hint string in `ExplorationScene`, the README controls table, and
+  `CONTENT_GUIDE.md`.
+- The "oblique" look is tile art, not projection: BootScene tile defs take an
+  optional `face` color drawing a front face on raised tiles — use it for new
+  tall tile types.

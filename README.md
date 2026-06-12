@@ -1,6 +1,6 @@
 # Winds of Silence — *A Quiet Toll* (vertical slice)
 
-A 2D isometric, text-heavy party RPG built on **Phaser 4**: character creation with
+A 2D top-down, text-heavy party RPG built on **Phaser 4**: character creation with
 races/classes/attributes, skill-check-driven branching dialogue with internal "voice"
 commentary, a reactive explorable map with a multi-solution puzzle, and turn-based party
 combat with timed hits, parries, and a weakness/break system.
@@ -54,7 +54,7 @@ error screen naming the file and field instead of a broken game.
 
 | Context      | Keys |
 |--------------|------|
-| Exploration  | **WASD / arrows** move · **E / SPACE** interact · **J** journal · **C** party & pack |
+| Exploration  | **WASD / arrows** move · **E / SPACE** interact · **Z / X** zoom camera out / in · **J** journal · **C** party & pack |
 | Dialogue     | click an option or press **1–9** |
 | Combat       | click actions/targets · **SPACE** for timed hits and parries |
 | Menus        | mouse |

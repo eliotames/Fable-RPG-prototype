@@ -86,5 +86,12 @@
     "maxSize": 3,
     "reviveHpFraction": 0.3,
     "healAfterCombat": true
+  },
+
+  "exploration": {
+    "//": "Exploration camera. zoomLevels are ordered nearest → farthest (1 = native scale; any count works): Z steps one level out, X one level in, clamped at the ends. zoomDefaultIndex is the starting level; each change tweens over zoomTweenMs.",
+    "zoomLevels": [1.5, 1, 0.65],
+    "zoomDefaultIndex": 1,
+    "zoomTweenMs": 220
   }
 }

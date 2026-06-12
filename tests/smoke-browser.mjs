@@ -86,7 +86,7 @@ await step('character creation: build a Chanter and confirm', async () => {
   await activeScene('Exploration');
 });
 
-await step('exploration: iso map rendered, player placed, movement works', async () => {
+await step('exploration: top-down map rendered, player placed, movement works', async () => {
   const r = await page.evaluate(async () => {
     const ex = globalThis.game.scene.getScene('Exploration');
     const before = { tx: ex.ptx, ty: ex.pty, x: ex.playerToken.x, y: ex.playerToken.y };
@@ -101,6 +101,43 @@ await step('exploration: iso map rendered, player placed, movement works', async
   if (!r.layer || r.tiles !== 18 * 14) throw new Error(`map wrong: ${JSON.stringify(r)}`);
   if (r.interactables !== 11) throw new Error(`expected 11 interactables, got ${r.interactables}`);
   if (r.after.ty >= r.before.ty) throw new Error('player did not move north');
+});
+
+await step('camera zoom: Z/X step out/in with end clamping, no mid-tween snap', async () => {
+  const r = await page.evaluate(async () => {
+    const ex = globalThis.game.scene.getScene('Exploration');
+    const cam = ex.cameras.main;
+    const { zoomTweenMs, zoomDefaultIndex } = globalThis.game.registry.get('content').tuning.exploration;
+    const wait = (ms) => new Promise((res) => setTimeout(res, ms));
+    const n = ex.zoomLevels.length;
+    for (let i = 0; i < n; i++) { ex.stepZoom(1); await wait(zoomTweenMs + 200); } // n presses: clamps at farthest
+    const farthest = cam.zoom;
+    // step back in one level, sampling the scroll for single-frame snaps
+    const samples = [];
+    ex.stepZoom(-1);
+    const t0 = Date.now();
+    while (Date.now() - t0 < zoomTweenMs + 200) {
+      samples.push({ x: cam.scrollX, y: cam.scrollY });
+      await wait(16);
+    }
+    const d = (a, b) => Math.hypot(b.x - a.x, b.y - a.y);
+    const total = d(samples[0], samples.at(-1));
+    let maxStep = 0;
+    for (let i = 1; i < samples.length; i++) maxStep = Math.max(maxStep, d(samples[i - 1], samples[i]));
+    for (let i = 0; i < n; i++) { ex.stepZoom(-1); await wait(zoomTweenMs + 200); } // clamps at nearest
+    const nearest = cam.zoom;
+    while (ex.zoomIndex !== zoomDefaultIndex) { // leave the scene at the default level
+      ex.stepZoom(ex.zoomIndex < zoomDefaultIndex ? 1 : -1);
+      await wait(zoomTweenMs + 200);
+    }
+    return { farthest, nearest, levels: ex.zoomLevels, total, maxStep, hudZoom: ex.uiCam.zoom };
+  });
+  if (Math.abs(r.farthest - r.levels.at(-1)) > 1e-3) throw new Error(`farthest ${r.farthest} != ${r.levels.at(-1)}`);
+  if (Math.abs(r.nearest - r.levels[0]) > 1e-3) throw new Error(`nearest ${r.nearest} != ${r.levels[0]}`);
+  if (r.total > 60 && r.maxStep > r.total * 0.5) {
+    throw new Error(`camera snapped: ${r.maxStep.toFixed(0)}px of a ${r.total.toFixed(0)}px pan in one frame`);
+  }
+  if (r.hudZoom !== 1) throw new Error(`UI camera zoomed: ${r.hudZoom}`);
 });
 
 await step('dialogue: Senna opens with text, voices, and options', async () => {

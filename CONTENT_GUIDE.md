@@ -347,8 +347,9 @@ timed-hit sweep/windows/multipliers, parry telegraph/window, Break rules (chip, 
 damage, lost turns, recovery), focus regen, defend, check die + named difficulties
 (`"dc": "hard"` in any dialogue resolves through this file), the party-wide Lore
 threshold that auto-reveals weaknesses, party size, and the exploration camera's
-zoom levels (Z cycles through `exploration.zoomLevels` in order — list as many
-or as few as you like).
+zoom levels (`exploration.zoomLevels`, ordered nearest → farthest — Z steps out,
+X steps in; list as many or as few as you like, and pick the starting one with
+`zoomDefaultIndex`).
 
 Change a number, reload, done. If you rename or remove a field the validator will tell
 you exactly what broke.

@@ -50,7 +50,7 @@ export class ExplorationScene extends Phaser.Scene {
     this.spawnPlayer();
     this.buildHud();
 
-    this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE,J,C,Z');
+    this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE,J,C,Z,X');
     this.moving = false;
     this.uiPanel = null;
 
@@ -58,9 +58,10 @@ export class ExplorationScene extends Phaser.Scene {
     cam.startFollow(this.playerToken, true, 0.12, 0.12);
     cam.setDeadzone(240, 180);
     this.zoomLevels = this.reg.tuning.exploration.zoomLevels;
-    this.zoomIndex = 0;
-    cam.setZoom(this.zoomLevels[0]);
-    this.applyCameraBounds(this.zoomLevels[0]);
+    this.zoomIndex = Phaser.Math.Clamp(
+      this.reg.tuning.exploration.zoomDefaultIndex, 0, this.zoomLevels.length - 1);
+    cam.setZoom(this.zoomLevels[this.zoomIndex]);
+    this.applyCameraBounds(this.zoomLevels[this.zoomIndex]);
 
     this.events.on('resume', () => {
       this.input.keyboard.resetKeys();
@@ -175,7 +176,8 @@ export class ExplorationScene extends Phaser.Scene {
 
     if (Phaser.Input.Keyboard.JustDown(k.J)) return this.togglePanel('journal');
     if (Phaser.Input.Keyboard.JustDown(k.C)) return this.togglePanel('party');
-    if (Phaser.Input.Keyboard.JustDown(k.Z)) return this.cycleZoom();
+    if (Phaser.Input.Keyboard.JustDown(k.Z)) return this.stepZoom(1);
+    if (Phaser.Input.Keyboard.JustDown(k.X)) return this.stepZoom(-1);
     if (this.uiPanel) {
       if (Phaser.Input.Keyboard.JustDown(k.E) || Phaser.Input.Keyboard.JustDown(k.SPACE)) this.togglePanel(this.uiPanel.kind);
       return;
@@ -207,12 +209,21 @@ export class ExplorationScene extends Phaser.Scene {
     });
   }
 
-  /** Z: step the world camera through the tuned zoom levels, wrapping around. */
-  cycleZoom() {
-    this.zoomIndex = (this.zoomIndex + 1) % this.zoomLevels.length;
-    const zoom = this.zoomLevels[this.zoomIndex];
-    this.applyCameraBounds(zoom);
-    this.cameras.main.zoomTo(zoom, this.reg.tuning.exploration.zoomTweenMs, 'Sine.easeInOut');
+  /** Z (+1) / X (−1): step the world camera one zoom level out or in. */
+  stepZoom(dir) {
+    const next = Phaser.Math.Clamp(this.zoomIndex + dir, 0, this.zoomLevels.length - 1);
+    if (next === this.zoomIndex) return;
+    this.zoomIndex = next;
+    const cam = this.cameras.main;
+    this.zoomTween?.stop();
+    // Tween the zoom and re-derive the bounds from the in-between zoom every
+    // frame: a one-shot bounds change snaps the clamped scroll position in a
+    // single frame, which reads as a jerk mid-transition.
+    this.zoomTween = this.tweens.add({
+      targets: cam, zoom: this.zoomLevels[next],
+      duration: this.reg.tuning.exploration.zoomTweenMs, ease: 'Sine.easeInOut',
+      onUpdate: () => this.applyCameraBounds(cam.zoom),
+    });
   }
 
   /**
@@ -254,7 +265,7 @@ export class ExplorationScene extends Phaser.Scene {
       bodyStyle({ fontSize: '36px', color: '#ffe9b0' })).setScrollFactor(0).setDepth(4001));
     this.hintText = this.asUI(this.add.text(40, 68, '', uiStyle({ fontSize: '26px', color: Colors.textDim }))
       .setScrollFactor(0).setDepth(4001));
-    this.asUI(this.add.text(sw - 40, 40, 'WASD move · E interact · Z zoom · J journal · C party',
+    this.asUI(this.add.text(sw - 40, 40, 'WASD move · E interact · Z/X zoom · J journal · C party',
       uiStyle({ fontSize: '24px', color: Colors.textDim })).setOrigin(1, 0.5).setScrollFactor(0).setDepth(4001));
     this.promptText = this.asUI(this.add.text(sw / 2, this.scale.height - 72, '',
       uiStyle({ fontSize: '34px', color: '#ffe9b0', backgroundColor: '#14161dee', padding: { x: 24, y: 12 } }))

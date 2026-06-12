@@ -103,21 +103,39 @@ await step('exploration: top-down map rendered, player placed, movement works', 
   if (r.after.ty >= r.before.ty) throw new Error('player did not move north');
 });
 
-await step('camera zoom: Z cycles every tuned level and wraps to default', async () => {
+await step('camera zoom: Z/X step out/in with end clamping, no mid-tween snap', async () => {
   const r = await page.evaluate(async () => {
     const ex = globalThis.game.scene.getScene('Exploration');
-    const tweenMs = globalThis.game.registry.get('content').tuning.exploration.zoomTweenMs;
-    const seen = [];
-    for (let i = 0; i < ex.zoomLevels.length; i++) {
-      ex.cycleZoom();
-      await new Promise((res) => setTimeout(res, tweenMs + 250));
-      seen.push(Math.round(ex.cameras.main.zoom * 1000) / 1000);
+    const cam = ex.cameras.main;
+    const { zoomTweenMs, zoomDefaultIndex } = globalThis.game.registry.get('content').tuning.exploration;
+    const wait = (ms) => new Promise((res) => setTimeout(res, ms));
+    const n = ex.zoomLevels.length;
+    for (let i = 0; i < n; i++) { ex.stepZoom(1); await wait(zoomTweenMs + 200); } // n presses: clamps at farthest
+    const farthest = cam.zoom;
+    // step back in one level, sampling the scroll for single-frame snaps
+    const samples = [];
+    ex.stepZoom(-1);
+    const t0 = Date.now();
+    while (Date.now() - t0 < zoomTweenMs + 200) {
+      samples.push({ x: cam.scrollX, y: cam.scrollY });
+      await wait(16);
     }
-    return { seen, levels: ex.zoomLevels, hudZoom: ex.uiCam.zoom };
+    const d = (a, b) => Math.hypot(b.x - a.x, b.y - a.y);
+    const total = d(samples[0], samples.at(-1));
+    let maxStep = 0;
+    for (let i = 1; i < samples.length; i++) maxStep = Math.max(maxStep, d(samples[i - 1], samples[i]));
+    for (let i = 0; i < n; i++) { ex.stepZoom(-1); await wait(zoomTweenMs + 200); } // clamps at nearest
+    const nearest = cam.zoom;
+    while (ex.zoomIndex !== zoomDefaultIndex) { // leave the scene at the default level
+      ex.stepZoom(ex.zoomIndex < zoomDefaultIndex ? 1 : -1);
+      await wait(zoomTweenMs + 200);
+    }
+    return { farthest, nearest, levels: ex.zoomLevels, total, maxStep, hudZoom: ex.uiCam.zoom };
   });
-  const expected = [...r.levels.slice(1), r.levels[0]]; // cycle starts at levels[1], wraps home
-  if (JSON.stringify(r.seen) !== JSON.stringify(expected)) {
-    throw new Error(`zoom cycle ${JSON.stringify(r.seen)} != ${JSON.stringify(expected)}`);
+  if (Math.abs(r.farthest - r.levels.at(-1)) > 1e-3) throw new Error(`farthest ${r.farthest} != ${r.levels.at(-1)}`);
+  if (Math.abs(r.nearest - r.levels[0]) > 1e-3) throw new Error(`nearest ${r.nearest} != ${r.levels[0]}`);
+  if (r.total > 60 && r.maxStep > r.total * 0.5) {
+    throw new Error(`camera snapped: ${r.maxStep.toFixed(0)}px of a ${r.total.toFixed(0)}px pan in one frame`);
   }
   if (r.hudZoom !== 1) throw new Error(`UI camera zoomed: ${r.hudZoom}`);
 });

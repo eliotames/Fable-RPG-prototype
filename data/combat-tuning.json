@@ -89,8 +89,9 @@
   },
 
   "exploration": {
-    "//": "Z in exploration cycles the camera through zoomLevels in order (1 = native scale; any number of levels works). Each change tweens over zoomTweenMs.",
-    "zoomLevels": [1, 1.5, 0.65],
+    "//": "Exploration camera. zoomLevels are ordered nearest → farthest (1 = native scale; any count works): Z steps one level out, X one level in, clamped at the ends. zoomDefaultIndex is the starting level; each change tweens over zoomTweenMs.",
+    "zoomLevels": [1.5, 1, 0.65],
+    "zoomDefaultIndex": 1,
     "zoomTweenMs": 220
   }
 }

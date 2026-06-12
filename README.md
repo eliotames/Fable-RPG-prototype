@@ -54,7 +54,7 @@ error screen naming the file and field instead of a broken game.
 
 | Context      | Keys |
 |--------------|------|
-| Exploration  | **WASD / arrows** move · **E / SPACE** interact · **Z** cycle camera zoom · **J** journal · **C** party & pack |
+| Exploration  | **WASD / arrows** move · **E / SPACE** interact · **Z / X** zoom camera out / in · **J** journal · **C** party & pack |
 | Dialogue     | click an option or press **1–9** |
 | Combat       | click actions/targets · **SPACE** for timed hits and parries |
 | Menus        | mouse |

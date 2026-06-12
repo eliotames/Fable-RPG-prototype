@@ -346,7 +346,9 @@ derivation, the damage formula's coefficients, element weakness/resist multiplie
 timed-hit sweep/windows/multipliers, parry telegraph/window, Break rules (chip, bonus
 damage, lost turns, recovery), focus regen, defend, check die + named difficulties
 (`"dc": "hard"` in any dialogue resolves through this file), the party-wide Lore
-threshold that auto-reveals weaknesses, and party size.
+threshold that auto-reveals weaknesses, party size, and the exploration camera's
+zoom levels (Z cycles through `exploration.zoomLevels` in order — list as many
+or as few as you like).
 
 Change a number, reload, done. If you rename or remove a field the validator will tell
 you exactly what broke.

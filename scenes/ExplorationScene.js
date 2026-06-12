@@ -23,7 +23,16 @@ export class ExplorationScene extends Phaser.Scene {
   create(data = {}) {
     /** @type {object} ContentRegistry */
     this.reg = this.registry.get('content');
-    this.notify = makeNotifier(this);
+
+    // Two cameras: the main one zooms with the world; the UI camera stays at
+    // native scale (Phaser zoom scales scrollFactor-0 objects too, so fixed
+    // HUD/panels/toasts must render through their own camera). Every game
+    // object belongs to exactly one of them via asWorld/asUI.
+    this.uiCam = this.cameras.add(0, 0, this.scale.width, this.scale.height);
+    this.asWorld = (o) => { this.uiCam.ignore(o); return o; };
+    this.asUI = (o) => { this.cameras.main.ignore(o); return o; };
+    const baseNotify = makeNotifier(this);
+    this.notify = (text) => this.asUI(baseNotify(text));
 
     this.mapKey = data.mapKey ?? GameState.flags['current-map'] ?? [...this.reg.maps.keys()][0];
     GameState.setFlag('current-map', this.mapKey);
@@ -34,24 +43,24 @@ export class ExplorationScene extends Phaser.Scene {
     const tsName = rawMap.tilesets[0].name;
     const tileset = this.map.addTilesetImage(tsName, 'tiles');
     const offsetX = Math.max(0, (this.scale.width - this.map.widthInPixels) / 2);
-    this.layer = this.map.createLayer(0, tileset, offsetX, 200);
+    this.layer = this.asWorld(this.map.createLayer(0, tileset, offsetX, 200));
     this.blocked = new Set(String(this.mapProps.blockedTiles ?? '').split(',').map((s) => parseInt(s, 10)).filter((n) => !isNaN(n)));
 
     this.parseObjects(rawMap);
     this.spawnPlayer();
     this.buildHud();
 
-    this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE,J,C');
+    this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE,J,C,Z');
     this.moving = false;
     this.uiPanel = null;
 
     const cam = this.cameras.main;
-    // clamp to the map (plus the layer's top margin mirrored on all sides) so
-    // the camera never frames empty void; smaller-than-view axes auto-center
-    cam.setBounds(this.layer.x - 200, 0,
-      this.map.widthInPixels + 400, this.map.heightInPixels + 400);
     cam.startFollow(this.playerToken, true, 0.12, 0.12);
     cam.setDeadzone(240, 180);
+    this.zoomLevels = this.reg.tuning.exploration.zoomLevels;
+    this.zoomIndex = 0;
+    cam.setZoom(this.zoomLevels[0]);
+    this.applyCameraBounds(this.zoomLevels[0]);
 
     this.events.on('resume', () => {
       this.input.keyboard.resetKeys();
@@ -126,7 +135,7 @@ export class ExplorationScene extends Phaser.Scene {
       parts.push(this.add.text(0, -56, it.displayName,
         uiStyle({ fontSize: '24px', color: it.color, backgroundColor: '#0b0c10aa', padding: { x: 8, y: 2 } })).setOrigin(0.5));
     }
-    it.token = this.add.container(pos.x, pos.y, parts).setDepth(pos.y);
+    it.token = this.asWorld(this.add.container(pos.x, pos.y, parts).setDepth(pos.y));
   }
 
   /** Apply flags to the world: open barriers, hide recruited NPCs / flagged tokens. */
@@ -145,10 +154,10 @@ export class ExplorationScene extends Phaser.Scene {
     this.ptx = this.playerStart.tx;
     this.pty = this.playerStart.ty;
     const pos = this.worldPos(this.ptx, this.pty);
-    this.playerToken = this.add.container(pos.x, pos.y, [
+    this.playerToken = this.asWorld(this.add.container(pos.x, pos.y, [
       this.add.image(0, 0, 'token').setTint(0xd8b36a),
       this.add.text(0, 0, '@', uiStyle({ fontSize: '30px', color: '#0b0c10', fontStyle: 'bold' })).setOrigin(0.5),
-    ]).setDepth(pos.y + 1);
+    ]).setDepth(pos.y + 1));
   }
 
   isBlocked(tx, ty) {
@@ -166,6 +175,7 @@ export class ExplorationScene extends Phaser.Scene {
 
     if (Phaser.Input.Keyboard.JustDown(k.J)) return this.togglePanel('journal');
     if (Phaser.Input.Keyboard.JustDown(k.C)) return this.togglePanel('party');
+    if (Phaser.Input.Keyboard.JustDown(k.Z)) return this.cycleZoom();
     if (this.uiPanel) {
       if (Phaser.Input.Keyboard.JustDown(k.E) || Phaser.Input.Keyboard.JustDown(k.SPACE)) this.togglePanel(this.uiPanel.kind);
       return;
@@ -197,6 +207,28 @@ export class ExplorationScene extends Phaser.Scene {
     });
   }
 
+  /** Z: step the world camera through the tuned zoom levels, wrapping around. */
+  cycleZoom() {
+    this.zoomIndex = (this.zoomIndex + 1) % this.zoomLevels.length;
+    const zoom = this.zoomLevels[this.zoomIndex];
+    this.applyCameraBounds(zoom);
+    this.cameras.main.zoomTo(zoom, this.reg.tuning.exploration.zoomTweenMs, 'Sine.easeInOut');
+  }
+
+  /**
+   * Clamp the world camera to the map plus a margin, so it never frames empty
+   * void. When the view at the given zoom is larger than that rect, grow the
+   * bounds to the view size instead — Phaser pins oversized views to the
+   * bounds' top-left corner, and matching the sizes keeps the map centered.
+   */
+  applyCameraBounds(zoom) {
+    const w = Math.max(this.map.widthInPixels + 400, this.scale.width / zoom);
+    const h = Math.max(this.map.heightInPixels + 400, this.scale.height / zoom);
+    const cx = this.layer.x + this.map.widthInPixels / 2;
+    const cy = this.layer.y + this.map.heightInPixels / 2;
+    this.cameras.main.setBounds(cx - w / 2, cy - h / 2, w, h);
+  }
+
   adjacentInteractable() {
     const dirs = [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]];
     for (const [dx, dy] of dirs) {
@@ -217,16 +249,16 @@ export class ExplorationScene extends Phaser.Scene {
 
   buildHud() {
     const sw = this.scale.width;
-    this.add.rectangle(0, 0, sw, 116, Colors.panel, 0.92).setOrigin(0).setScrollFactor(0).setDepth(4000);
-    this.add.text(40, 16, this.mapProps.displayName ?? this.mapKey,
-      bodyStyle({ fontSize: '36px', color: '#ffe9b0' })).setScrollFactor(0).setDepth(4001);
-    this.hintText = this.add.text(40, 68, '', uiStyle({ fontSize: '26px', color: Colors.textDim }))
-      .setScrollFactor(0).setDepth(4001);
-    this.add.text(sw - 40, 40, 'WASD move · E interact · J journal · C party',
-      uiStyle({ fontSize: '24px', color: Colors.textDim })).setOrigin(1, 0.5).setScrollFactor(0).setDepth(4001);
-    this.promptText = this.add.text(sw / 2, this.scale.height - 72, '',
+    this.asUI(this.add.rectangle(0, 0, sw, 116, Colors.panel, 0.92).setOrigin(0).setScrollFactor(0).setDepth(4000));
+    this.asUI(this.add.text(40, 16, this.mapProps.displayName ?? this.mapKey,
+      bodyStyle({ fontSize: '36px', color: '#ffe9b0' })).setScrollFactor(0).setDepth(4001));
+    this.hintText = this.asUI(this.add.text(40, 68, '', uiStyle({ fontSize: '26px', color: Colors.textDim }))
+      .setScrollFactor(0).setDepth(4001));
+    this.asUI(this.add.text(sw - 40, 40, 'WASD move · E interact · Z zoom · J journal · C party',
+      uiStyle({ fontSize: '24px', color: Colors.textDim })).setOrigin(1, 0.5).setScrollFactor(0).setDepth(4001));
+    this.promptText = this.asUI(this.add.text(sw / 2, this.scale.height - 72, '',
       uiStyle({ fontSize: '34px', color: '#ffe9b0', backgroundColor: '#14161dee', padding: { x: 24, y: 12 } }))
-      .setOrigin(0.5).setScrollFactor(0).setDepth(4001).setVisible(false);
+      .setOrigin(0.5).setScrollFactor(0).setDepth(4001).setVisible(false));
     this.refreshHud();
   }
 
@@ -246,9 +278,9 @@ export class ExplorationScene extends Phaser.Scene {
     }
     const objects = [];
     const w = 1320, h = 1040, x = (this.scale.width - w) / 2, y = 180;
-    objects.push(panel(this, x, y, w, h).setScrollFactor(0).setDepth(4500));
+    objects.push(this.asUI(panel(this, x, y, w, h).setScrollFactor(0).setDepth(4500)));
     const txt = (tx, ty, str, style) =>
-      objects.push(this.add.text(x + tx, y + ty, str, style).setScrollFactor(0).setDepth(4501));
+      objects.push(this.asUI(this.add.text(x + tx, y + ty, str, style).setScrollFactor(0).setDepth(4501)));
 
     if (kind === 'journal') {
       txt(48, 36, 'JOURNAL', uiStyle({ fontSize: '28px', color: '#ffe9b0' }));

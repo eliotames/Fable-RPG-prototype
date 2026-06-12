@@ -212,6 +212,7 @@ export const shapes = {
         { maxSize: S.int, healAfterCombat: S.bool },
         { optional: { reviveHpFraction: S.num } }
       ),
+      exploration: S.obj({ zoomLevels: S.arr(S.num), zoomTweenMs: S.num }),
     },
     { open: true }
   ),

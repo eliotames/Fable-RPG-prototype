@@ -70,7 +70,5 @@ export function toast(scene, text, index = 0) {
 /** Queue toasts so several effects in a row stack instead of overlap. */
 export function makeNotifier(scene) {
   let count = 0;
-  return (text) => {
-    toast(scene, text, count++ % 5);
-  };
+  return (text) => toast(scene, text, count++ % 5);
 }

@@ -103,6 +103,25 @@ await step('exploration: top-down map rendered, player placed, movement works', 
   if (r.after.ty >= r.before.ty) throw new Error('player did not move north');
 });
 
+await step('camera zoom: Z cycles every tuned level and wraps to default', async () => {
+  const r = await page.evaluate(async () => {
+    const ex = globalThis.game.scene.getScene('Exploration');
+    const tweenMs = globalThis.game.registry.get('content').tuning.exploration.zoomTweenMs;
+    const seen = [];
+    for (let i = 0; i < ex.zoomLevels.length; i++) {
+      ex.cycleZoom();
+      await new Promise((res) => setTimeout(res, tweenMs + 250));
+      seen.push(Math.round(ex.cameras.main.zoom * 1000) / 1000);
+    }
+    return { seen, levels: ex.zoomLevels, hudZoom: ex.uiCam.zoom };
+  });
+  const expected = [...r.levels.slice(1), r.levels[0]]; // cycle starts at levels[1], wraps home
+  if (JSON.stringify(r.seen) !== JSON.stringify(expected)) {
+    throw new Error(`zoom cycle ${JSON.stringify(r.seen)} != ${JSON.stringify(expected)}`);
+  }
+  if (r.hudZoom !== 1) throw new Error(`UI camera zoomed: ${r.hudZoom}`);
+});
+
 await step('dialogue: Senna opens with text, voices, and options', async () => {
   await page.evaluate(() => globalThis.game.scene.getScene('Exploration').openDialogue('elder-senna'));
   await activeScene('Dialogue');

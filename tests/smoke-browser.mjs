@@ -86,7 +86,7 @@ await step('character creation: build a Chanter and confirm', async () => {
   await activeScene('Exploration');
 });
 
-await step('exploration: iso map rendered, player placed, movement works', async () => {
+await step('exploration: top-down map rendered, player placed, movement works', async () => {
   const r = await page.evaluate(async () => {
     const ex = globalThis.game.scene.getScene('Exploration');
     const before = { tx: ex.ptx, ty: ex.pty, x: ex.playerToken.x, y: ex.playerToken.y };

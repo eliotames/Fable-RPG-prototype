@@ -2,13 +2,13 @@
  "type": "map",
  "version": "1.10",
  "tiledversion": "1.10.2",
- "orientation": "isometric",
+ "orientation": "orthogonal",
  "renderorder": "right-down",
  "infinite": false,
  "width": 18,
  "height": 14,
  "tilewidth": 128,
- "tileheight": 64,
+ "tileheight": 128,
  "nextlayerid": 3,
  "nextobjectid": 13,
  "properties": [
@@ -28,14 +28,14 @@
    "firstgid": 1,
    "name": "tiles",
    "tilewidth": 128,
-   "tileheight": 64,
+   "tileheight": 128,
    "tilecount": 8,
    "columns": 8,
    "margin": 0,
    "spacing": 0,
    "image": "tiles.png",
    "imagewidth": 1024,
-   "imageheight": 64
+   "imageheight": 128
   }
  ],
  "layers": [

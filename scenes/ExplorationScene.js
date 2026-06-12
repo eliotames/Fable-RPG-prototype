@@ -1,8 +1,8 @@
 /**
- * ExplorationScene — the isometric world. Renders a Tiled-format isometric
- * tilemap, tile-by-tile player movement, and interactables defined entirely in
- * the map's object layer (kind=npc|object|barrier|spawn with tx/ty tile
- * coordinates). Every interaction opens a dialogue from data/dialogue/*.json
+ * ExplorationScene — the top-down world. Renders a Tiled-format orthogonal
+ * tilemap in an oblique top-down perspective, tile-by-tile player movement,
+ * and interactables defined entirely in the map's object layer
+ * (kind=npc|object|barrier|spawn with tx/ty tile coordinates). Every interaction opens a dialogue from data/dialogue/*.json
  * via the overlay DialogueScene — NPCs, crates, gates and doors all use the
  * same path, so new interactions are pure content.
  */
@@ -33,7 +33,7 @@ export class ExplorationScene extends Phaser.Scene {
     this.map = this.make.tilemap({ key: this.mapKey });
     const tsName = rawMap.tilesets[0].name;
     const tileset = this.map.addTilesetImage(tsName, 'tiles');
-    const offsetX = (this.map.height - 1) * (this.map.tileWidth / 2) + 240;
+    const offsetX = Math.max(0, (this.scale.width - this.map.widthInPixels) / 2);
     this.layer = this.map.createLayer(0, tileset, offsetX, 200);
     this.blocked = new Set(String(this.mapProps.blockedTiles ?? '').split(',').map((s) => parseInt(s, 10)).filter((n) => !isNaN(n)));
 
@@ -46,6 +46,10 @@ export class ExplorationScene extends Phaser.Scene {
     this.uiPanel = null;
 
     const cam = this.cameras.main;
+    // clamp to the map (plus the layer's top margin mirrored on all sides) so
+    // the camera never frames empty void; smaller-than-view axes auto-center
+    cam.setBounds(this.layer.x - 200, 0,
+      this.map.widthInPixels + 400, this.map.heightInPixels + 400);
     cam.startFollow(this.playerToken, true, 0.12, 0.12);
     cam.setDeadzone(240, 180);
 
@@ -62,14 +66,14 @@ export class ExplorationScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- world --
 
-  /** Diamond-center world position of a tile. */
+  /** Center world position of a tile. */
   worldPos(tx, ty) {
     const p = this.map.tileToWorldXY(tx, ty, undefined, this.cameras.main, this.layer);
     if (p) return { x: p.x + this.map.tileWidth / 2, y: p.y + this.map.tileHeight / 2 };
-    // fallback: Phaser's isometric projection formula
+    // fallback: orthogonal projection formula
     return {
-      x: this.layer.x + (tx - ty) * (this.map.tileWidth / 2) + this.map.tileWidth / 2,
-      y: this.layer.y + (tx + ty) * (this.map.tileHeight / 2) + this.map.tileHeight / 2,
+      x: this.layer.x + tx * this.map.tileWidth + this.map.tileWidth / 2,
+      y: this.layer.y + ty * this.map.tileHeight + this.map.tileHeight / 2,
     };
   }
 
@@ -115,11 +119,11 @@ export class ExplorationScene extends Phaser.Scene {
     const pos = this.worldPos(it.tx, it.ty);
     const tint = Phaser.Display.Color.HexStringToColor(it.color).color;
     const parts = [
-      this.add.image(0, -16, 'token').setTint(tint),
-      this.add.text(0, -16, it.glyph, uiStyle({ fontSize: '28px', color: '#0b0c10', fontStyle: 'bold' })).setOrigin(0.5),
+      this.add.image(0, 0, 'token').setTint(tint),
+      this.add.text(0, 0, it.glyph, uiStyle({ fontSize: '28px', color: '#0b0c10', fontStyle: 'bold' })).setOrigin(0.5),
     ];
     if (it.displayName) {
-      parts.push(this.add.text(0, -68, it.displayName,
+      parts.push(this.add.text(0, -56, it.displayName,
         uiStyle({ fontSize: '24px', color: it.color, backgroundColor: '#0b0c10aa', padding: { x: 8, y: 2 } })).setOrigin(0.5));
     }
     it.token = this.add.container(pos.x, pos.y, parts).setDepth(pos.y);
@@ -142,8 +146,8 @@ export class ExplorationScene extends Phaser.Scene {
     this.pty = this.playerStart.ty;
     const pos = this.worldPos(this.ptx, this.pty);
     this.playerToken = this.add.container(pos.x, pos.y, [
-      this.add.image(0, -16, 'token').setTint(0xd8b36a),
-      this.add.text(0, -16, '@', uiStyle({ fontSize: '30px', color: '#0b0c10', fontStyle: 'bold' })).setOrigin(0.5),
+      this.add.image(0, 0, 'token').setTint(0xd8b36a),
+      this.add.text(0, 0, '@', uiStyle({ fontSize: '30px', color: '#0b0c10', fontStyle: 'bold' })).setOrigin(0.5),
     ]).setDepth(pos.y + 1);
   }
 

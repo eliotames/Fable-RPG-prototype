@@ -1,6 +1,6 @@
 # PLAN — Winds of Silence (vertical slice)
 
-A 2D isometric, text-heavy party RPG vertical slice built on **Phaser 4**, served as a
+A 2D top-down, text-heavy party RPG vertical slice built on **Phaser 4**, served as a
 plain static site (any static file server + a browser). No build step, no bundler, no
 dependencies beyond the Phaser global provided by index.html's CDN tag. All content is JSON.
 
@@ -21,7 +21,7 @@ scenes/
   PreloadScene.js       loads every manifest file, validates, builds ContentRegistry
   MainMenuScene.js      title screen
   CharacterCreationScene.js  name → race → class → attribute points → summary
-  ExplorationScene.js   isometric tilemap, movement, interactables, HUD, journal
+  ExplorationScene.js   top-down tilemap, movement, interactables, HUD, journal
   DialogueScene.js      overlay scene: branching dialogue, passive voices, active checks
   CombatScene.js        turn-based combat: timed hits, parries, weakness/break
   EndScene.js           win / lose / end-of-slice summary
@@ -46,7 +46,7 @@ data/
   abilities.json   items.json   enemies.json (incl. encounters)
   npcs.json        party.json   quests.json  combat-tuning.json
   dialogue/*.json  (one conversation per file)
-  maps/greyreach.json   (Tiled-format isometric map JSON)
+  maps/greyreach.json   (Tiled-format orthogonal map JSON)
 tests/
   run-tests.mjs         Node test runner: content validation, cross-refs, dialogue
                         graph integrity, combat math, timing windows, factory math,
@@ -61,10 +61,10 @@ README.md  CONTENT_GUIDE.md  PLAN.md
   `index.html` loads it from a CDN as a classic script in `<head>`, which is guaranteed
   to execute before the deferred `main.js` module. (`main.js` also exposes `game` and a
   small `WoS` debug handle on `globalThis` for the console and the browser smoke test.)
-- **Isometric tilemap**: `data/maps/greyreach.json` is Tiled-format JSON
-  (`orientation: "isometric"`), loaded with `load.tilemapTiledJSON` and rendered with
-  Phaser's tilemap API. The tileset texture is generated at Boot (colored diamonds), so
-  there are zero binary assets. Spawns/interactables are a Tiled `objectgroup` whose
+- **Top-down (oblique) tilemap**: `data/maps/greyreach.json` is Tiled-format JSON
+  (`orientation: "orthogonal"`), loaded with `load.tilemapTiledJSON` and rendered with
+  Phaser's tilemap API. The tileset texture is generated at Boot (colored squares;
+  raised tiles get a darker front face), so there are zero binary assets. Spawns/interactables are a Tiled `objectgroup` whose
   objects carry `tx`/`ty` tile-coordinate custom properties (editor-compatible).
 - **Movement**: tile-by-tile (WASD/arrows) with a blocked-tile list defined as a map
   property; flag-gated `barrier` objects (the bell-gate) also block until opened.

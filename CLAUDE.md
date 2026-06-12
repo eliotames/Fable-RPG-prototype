@@ -68,7 +68,7 @@ only if the user explicitly asks about story content.
 
 - The game renders natively at **2560×1440**; all scene/UI coordinates and font
   sizes are authored in that space (`Scale.FIT` letterboxes other window sizes).
-- BootScene generates the iso tileset at **128×64 per tile**. The map JSON's
+- BootScene generates the top-down tileset at **128×128 per tile**. The map JSON's
   embedded tileset (`tilewidth`, `tileheight`, `imagewidth`, `imageheight`) must
   match the generated texture exactly — Phaser builds the tileset's UV table from
   those declared numbers, and a mismatch crashes ExplorationScene.create with an

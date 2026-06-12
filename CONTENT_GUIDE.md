@@ -313,9 +313,10 @@ shows `journal`.
 
 ## 10. Add or edit a map
 
-Maps are **Tiled-format isometric JSON** (`data/maps/*.json`, manifest type `map`) —
-editable by hand or in the Tiled map editor (orientation `isometric`,
-tile size 128×64, matching the generated tileset). The engine reads:
+Maps are **Tiled-format orthogonal JSON** (`data/maps/*.json`, manifest type `map`) —
+editable by hand or in the Tiled map editor (orientation `orthogonal`,
+tile size 128×128, matching the generated tileset; rendered top-down/oblique).
+The engine reads:
 
 - the first tile layer (terrain; tile gids 1–8 from the generated tileset: 1 grass,
   2 path, 3 water, 4 stone, 5 rock wall, 6 hush, 7 field, 8 bridge),

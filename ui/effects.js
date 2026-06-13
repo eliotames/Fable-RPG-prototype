@@ -11,10 +11,12 @@ import { Settings } from './Settings.js';
 import { Palette } from './Theme.js';
 
 const anim = () => Settings.data.animations !== false;
-const density = () => (Settings.data.particles ?? 100) / 100;
+const density = () => (Settings.data.particles ?? 100) / 100; // slider runs 0–200%
 
 /**
- * Slow drifting dust motes (and a few brighter embers when `embers` is set).
+ * Drifting dust motes and brighter rising embers. Each particle gets a rise +
+ * fade loop plus its own sine sway; embers also flicker. The particles
+ * setting (0–200%) scales the counts, so 200% is a genuinely thick haze.
  * @param {{count?: number, embers?: number, tint?: number, depth?: number,
  *          region?: {x: number, y: number, w: number, h: number},
  *          route?: (obj: object) => object}} opts
@@ -26,32 +28,49 @@ export function addMotes(scene, opts = {}) {
   const route = opts.route ?? ((o) => o);
   const made = [];
 
-  const spawn = (tint, alpha, scale, riseMin, riseMax) => {
+  const spawn = (tint, alpha, scale, riseMin, riseMax, flicker) => {
     const img = scene.add.image(
       Phaser.Math.Between(r.x, r.x + r.w), Phaser.Math.Between(r.y, r.y + r.h), 'mote')
       .setTint(tint).setAlpha(alpha).setScale(scale).setDepth(opts.depth ?? 2);
     route(img);
-    scene.tweens.add({
+    scene.tweens.add({ // rise and fade, looping from the spawn point
       targets: img,
       y: img.y - Phaser.Math.Between(riseMin, riseMax),
-      x: img.x + Phaser.Math.Between(-40, 40),
       alpha: 0,
-      duration: Phaser.Math.Between(5000, 12000),
+      duration: Phaser.Math.Between(4500, 11000),
       delay: Phaser.Math.Between(0, 4000),
       repeat: -1,
     });
+    scene.tweens.add({ // independent horizontal sway
+      targets: img,
+      x: img.x + Phaser.Math.Between(-70, 70),
+      duration: Phaser.Math.Between(2200, 5200),
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+    if (flicker) {
+      scene.tweens.add({
+        targets: img,
+        scale: scale * Phaser.Math.FloatBetween(1.4, 1.9),
+        duration: Phaser.Math.Between(220, 420),
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+    }
     made.push(img);
   };
 
   const motes = Math.round((opts.count ?? 36) * density());
   for (let i = 0; i < motes; i++) {
     spawn(opts.tint ?? Palette.brass,
-      Phaser.Math.FloatBetween(0.05, 0.22), Phaser.Math.FloatBetween(0.35, 1.1), 60, 180);
+      Phaser.Math.FloatBetween(0.05, 0.26), Phaser.Math.FloatBetween(0.35, 1.2), 60, 200, false);
   }
   const embers = Math.round((opts.embers ?? 0) * density());
   for (let i = 0; i < embers; i++) {
     spawn(Palette.accentBright,
-      Phaser.Math.FloatBetween(0.25, 0.5), Phaser.Math.FloatBetween(0.25, 0.55), 200, 420);
+      Phaser.Math.FloatBetween(0.3, 0.55), Phaser.Math.FloatBetween(0.25, 0.6), 220, 480, true);
   }
   return made;
 }

@@ -1,9 +1,9 @@
 /**
  * OptionsScene — presentation settings, all of them live: vignette strength,
- * film grain, particle density, UI animations, font size, typeface, and the
- * dialogue letterbox. ui/Settings.js persists and applies them; rows that
- * change type or particles restart this scene so the change is visible
- * immediately. Nothing here touches game systems.
+ * particle density, UI animations, font size, and typeface. ui/Settings.js
+ * persists and applies them; rows that change type or particles restart this
+ * scene so the change is visible immediately. Nothing here touches game
+ * systems.
  */
 import { Settings, TYPEFACE_ORDER } from '../ui/Settings.js';
 import { Palette, Ink, displayStyle, proseStyle, monoStyle, track } from '../ui/Theme.js';
@@ -72,12 +72,8 @@ export class OptionsScene extends Phaser.Scene {
     section('ATMOSPHERE');
     y = this.sliderRow(put, x, y, 'Vignette — how dark is too dark', 0, 100, 10,
       () => d.vignette, (v) => set('vignette', v));
-    y = this.toggleRow(put, x, y, 'Film Grain',
-      () => d.grain, (v) => set('grain', v));
-    y = this.sliderRow(put, x, y, 'Particles — drifting dust and embers', 0, 100, 25,
-      () => d.particles, (v) => set('particles', v, true));
-    y = this.toggleRow(put, x, y, 'Letterbox in Dialogue',
-      () => d.letterbox, (v) => set('letterbox', v));
+    y = this.sliderRow(put, x, y, 'Particles — drifting dust and embers', 0, 200, 25,
+      () => d.particles, (v) => set('particles', v, true), (v) => `${v}%`);
 
     y += 56;
     section('INTERFACE');

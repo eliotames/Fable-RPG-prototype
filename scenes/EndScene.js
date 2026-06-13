@@ -4,8 +4,9 @@
  */
 import { GameState } from '../systems/GameState.js';
 import { QuestSystem } from '../systems/QuestSystem.js';
-import { Colors, titleStyle, bodyStyle, uiStyle } from '../ui/Theme.js';
-import { textButton } from '../ui/widgets.js';
+import { Palette, Ink, displayStyle, proseStyle, track } from '../ui/Theme.js';
+import { label, rule, frameButton } from '../ui/widgets.js';
+import { addMotes, staggerIn, fadeIn } from '../ui/effects.js';
 
 export class EndScene extends Phaser.Scene {
   constructor() {
@@ -14,17 +15,26 @@ export class EndScene extends Phaser.Scene {
 
   create() {
     const ending = GameState.ending ?? { outcome: 'win', epilogue: '' };
-    const cx = this.scale.width / 2;
+    const sw = this.scale.width, sh = this.scale.height;
+    const cx = sw / 2;
     const won = ending.outcome !== 'defeat';
 
-    this.add.text(cx, 280, won ? 'THE TOLL RINGS CLEAR' : 'THE HUSH PREVAILS',
-      titleStyle({ fontSize: '88px', color: won ? '#d8b36a' : '#c4554d' })).setOrigin(0.5);
+    this.add.rectangle(0, 0, sw, sh, Palette.bg0).setOrigin(0);
+    fadeIn(this, 450);
+    addMotes(this, { count: 30, embers: won ? 8 : 0, depth: 1 });
+    const entrance = [];
+    const enter = (o) => { entrance.push(o); return o; };
+
+    enter(rule(this, cx, 250, 360, won ? '◆' : '◇'));
+    const title = enter(this.add.text(cx, 360, won ? 'THE TOLL RINGS CLEAR' : 'THE HUSH PREVAILS',
+      displayStyle({ fontSize: '92px', color: won ? Ink.ink : Ink.accentBright })).setOrigin(0.5));
+    track(title, 18);
 
     const epilogue = won
       ? (ending.epilogue || 'The slice ends here — thank you for playing.')
       : 'The party falls, and Greyreach Crossing goes quiet for good.\nBut every silence is only waiting for a braver sound. Try again.';
-    this.add.text(cx, 480, epilogue,
-      bodyStyle({ fontSize: '36px', align: 'center', wordWrap: { width: 1760 } })).setOrigin(0.5, 0);
+    enter(this.add.text(cx, 500, epilogue,
+      proseStyle({ fontSize: '34px', color: Ink.dim, align: 'center', wordWrap: { width: 1700 } })).setOrigin(0.5, 0));
 
     // a small record of the run
     const p = GameState.player;
@@ -33,19 +43,23 @@ export class EndScene extends Phaser.Scene {
       const race = reg.races.get(p.raceId)?.name ?? p.raceId;
       const klass = reg.classes.get(p.classId)?.name ?? p.classId;
       const companions = GameState.party.map((m) => m.name).join(', ') || 'no one — you walked alone';
-      const quests = QuestSystem.journalEntries().map((e) => `${e.done ? '✓' : '…'} ${e.quest.name}`).join('   ') || '—';
-      this.add.text(cx, 840,
-        `${p.name}, ${race} ${klass}\ncompanions: ${companions}\nquests: ${quests}`,
-        uiStyle({ fontSize: '28px', color: Colors.textDim, align: 'center', lineSpacing: 16 })).setOrigin(0.5, 0);
+      const quests = QuestSystem.journalEntries().map((e) => `${e.done ? '◇' : '◆'} ${e.quest.name}`).join('    ') || '—';
+      enter(label(this, cx, 830, 'THE RECORD', { size: 15, color: Ink.faint, origin: [0.5, 0.5] }));
+      enter(label(this, cx, 880, `${p.name} — ${race} ${klass}`, { size: 18, color: Ink.ink, origin: [0.5, 0.5] }));
+      enter(label(this, cx, 926, `COMPANIONS · ${companions}`, { size: 16, color: Ink.dim, origin: [0.5, 0.5] }));
+      enter(label(this, cx, 968, `WORKS · ${quests}`, { size: 16, color: Ink.dim, origin: [0.5, 0.5] }));
     }
 
-    this.add.text(cx, 1060, won
-      ? 'End of the vertical slice. Everything you just played — races, checks,\nthe gate puzzle, the Sentinel — is defined in the data/ JSON files.'
-      : '', uiStyle({ fontSize: '26px', color: '#6a665c', align: 'center', lineSpacing: 12 })).setOrigin(0.5, 0);
+    if (won) {
+      enter(this.add.text(cx, 1070,
+        'End of the vertical slice. Everything you just played — races, checks,\nthe gate puzzle, the Sentinel — is defined in the data/ JSON files.',
+        proseStyle({ fontSize: '27px', fontStyle: 'italic', color: Ink.dim, align: 'center' })).setOrigin(0.5, 0));
+    }
 
-    textButton(this, cx, 1280, '[ Return to Title ]', {
-      style: { fontSize: '44px', color: '#d8b36a' },
+    frameButton(this, cx, 1280, 'Return to Title', {
+      primary: true,
       onClick: () => this.scene.start('MainMenu'),
-    }).setOrigin(0.5);
+    });
+    staggerIn(this, entrance, { rise: 24, delayStep: 80, duration: 450 });
   }
 }

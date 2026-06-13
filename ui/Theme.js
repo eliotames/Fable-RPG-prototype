@@ -1,41 +1,97 @@
 /**
- * Theme — shared colors and text styles so every scene looks consistent.
- * Visuals are deliberately minimal (placeholder art); the theme keeps them tidy.
+ * Theme — shared design tokens and text styles so every scene speaks the same
+ * visual language: warm umber near-black, bone ink, oxblood accent, tarnished
+ * brass (sparing). Negative space is the material; hairlines and diamonds are
+ * the ornament.
+ *
+ * Type is settings-driven (ui/Settings.js): three switchable typeface sets
+ * and a global font-size scale, both applied inside the style helpers so
+ * every text object in the game follows them. Fonts are loaded from Google
+ * Fonts in index.html (BootScene waits for them); every stack ends in a
+ * system fallback so the game still renders offline.
  */
+import { Settings } from './Settings.js';
 
-export const Colors = {
-  bg: 0x0b0c10,
-  panel: 0x14161d,
-  panelEdge: 0x3a3f4f,
-  accent: 0xd8b36a,        // candle-gold
-  accentDim: 0x8a7340,
-  danger: 0xc4554d,
-  good: 0x6dbb6d,
-  focus: 0x5d9fd4,
-  text: '#e8e4d8',
-  textDim: '#9a958a',
-  speaker: '#d8b36a',
-  voice: '#8fb8d8',        // skill "voice" commentary
-  check: '#c9a0dc',
-  disabled: '#5a564e',
+/** Numeric colors for Graphics/Rectangle fills and strokes. */
+export const Palette = {
+  bgPage: 0x0c0a08,
+  bg0: 0x14100c,
+  bg1: 0x1b1611,
+  bg2: 0x221c15,
+  bg3: 0x2b231a,
+  line: 0x3e3528,
+  lineStrong: 0x645540,
+  ink: 0xe8ddc4,
+  inkDim: 0xb5a78b,
+  inkFaint: 0x80735a,
+  accent: 0x9c3b2e,
+  accentBright: 0xd4684a,
+  brass: 0xc09a52,
+  verdigris: 0x7da18b,
 };
 
-export const Fonts = {
-  body: 'Georgia, "Times New Roman", serif',
-  ui: 'Verdana, Geneva, sans-serif',
+/** String colors for text styles (same palette as above). */
+export const Ink = {
+  ink: '#e8ddc4',
+  dim: '#b5a78b',
+  faint: '#80735a',
+  accent: '#9c3b2e',
+  accentBright: '#d4684a',
+  brass: '#c09a52',
+  verdigris: '#7da18b',
 };
 
-/** @returns {object} Phaser text style */
-export function bodyStyle(overrides = {}) {
-  return { fontFamily: Fonts.body, fontSize: '34px', color: Colors.text, lineSpacing: 12, ...overrides };
+const TYPEFACES = {
+  default: { // programming-style: one clean mono face throughout
+    display: '"Source Code Pro", Consolas, Menlo, monospace',
+    prose: '"Source Code Pro", Consolas, Menlo, monospace',
+    mono: '"Source Code Pro", Consolas, Menlo, monospace',
+  },
+  literary: { // the serif set
+    display: 'Cormorant, Georgia, "Times New Roman", serif',
+    prose: '"Crimson Pro", Georgia, "Times New Roman", serif',
+    mono: '"IBM Plex Mono", Consolas, Menlo, monospace',
+  },
+  legible: { // humanist sans
+    display: 'Roboto, "Helvetica Neue", Arial, sans-serif',
+    prose: 'Roboto, "Helvetica Neue", Arial, sans-serif',
+    mono: '"Roboto Mono", Consolas, Menlo, monospace',
+  },
+};
+
+/** Current typeface set (follows the Options screen). */
+export function fonts() {
+  return TYPEFACES[Settings.data.typeface] ?? TYPEFACES.default;
 }
 
-/** @returns {object} Phaser text style */
-export function uiStyle(overrides = {}) {
-  return { fontFamily: Fonts.ui, fontSize: '28px', color: Colors.text, ...overrides };
+/** Apply the global font scale to a style's fontSize (e.g. '26px' @ 120 → '31px'). */
+function scaled(style) {
+  const scale = (Settings.data.fontScale ?? 100) / 100;
+  const n = parseFloat(style.fontSize);
+  if (!Number.isNaN(n) && scale !== 1) style.fontSize = `${Math.round(n * scale)}px`;
+  return style;
 }
 
-/** @returns {object} Phaser text style */
-export function titleStyle(overrides = {}) {
-  return { fontFamily: Fonts.body, fontSize: '84px', color: '#e8e4d8', fontStyle: 'bold', ...overrides };
+/** Display face — headings, names, big numerals. */
+export function displayStyle(overrides = {}) {
+  return scaled({ fontFamily: fonts().display, fontSize: '59px', color: Ink.ink, ...overrides });
+}
+
+/** Prose face — body text, dialogue, descriptions. */
+export function proseStyle(overrides = {}) {
+  return scaled({ fontFamily: fonts().prose, fontSize: '29px', color: Ink.ink, lineSpacing: 13, ...overrides });
+}
+
+/** Mono face — labels, values, controls. Pair with widgets.label for caps+tracking. */
+export function monoStyle(overrides = {}) {
+  return scaled({ fontFamily: fonts().mono, fontSize: '18px', color: Ink.dim, ...overrides });
+}
+
+/**
+ * Apply letter tracking if this Phaser build supports it (no-op otherwise,
+ * which only loses the tracking, not the text).
+ */
+export function track(textObj, px) {
+  if (typeof textObj.setLetterSpacing === 'function') textObj.setLetterSpacing(px);
+  return textObj;
 }

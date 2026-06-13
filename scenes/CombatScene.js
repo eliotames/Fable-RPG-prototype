@@ -9,13 +9,17 @@
  * All numbers come from combat-tuning.json; all enemies/abilities/encounters
  * from content JSON. High party Lore reveals enemy weaknesses from the start,
  * and story flags can pre-weaken enemies via encounter `modifiers`.
+ *
+ * Presentation: turn-order chips under the header, party and enemies in
+ * hairline panels, the log kept as "The Record", abilities as framed cards.
  */
 import { GameState } from '../systems/GameState.js';
 import { computeDamage, computeHeal, applyBreakDamage, turnOrder } from '../systems/CombatMath.js';
 import { gradeHit, gradeParry, telegraphDelay } from '../systems/TimingJudge.js';
 import { weightedPick, pick } from '../systems/rng.js';
-import { Colors, uiStyle, bodyStyle, titleStyle } from '../ui/Theme.js';
-import { panel, statBar, textButton } from '../ui/widgets.js';
+import { Palette, Ink, displayStyle, proseStyle, monoStyle, track } from '../ui/Theme.js';
+import { panel, statBar, label, frameButton, textButton } from '../ui/widgets.js';
+import { addMotes } from '../ui/effects.js';
 
 export class CombatScene extends Phaser.Scene {
   constructor() {
@@ -92,50 +96,58 @@ export class CombatScene extends Phaser.Scene {
 
   buildUi(encounter) {
     const sw = this.scale.width, sh = this.scale.height;
-    this.add.rectangle(0, 0, sw, sh, 0x101218).setOrigin(0);
-    this.add.text(sw / 2, 52, encounter.name, titleStyle({ fontSize: '48px' })).setOrigin(0.5);
-    this.roundText = this.add.text(sw / 2, 108, '', uiStyle({ fontSize: '26px', color: Colors.textDim })).setOrigin(0.5);
+    this.add.rectangle(0, 0, sw, sh, Palette.bg0).setOrigin(0);
+    addMotes(this, { count: 12, depth: 1, region: { x: 840, y: 240, w: sw - 1720, h: 760 } });
+    const title = this.add.text(sw / 2, 64, encounter.name.toUpperCase(),
+      displayStyle({ fontSize: '46px' })).setOrigin(0.5);
+    track(title, 8);
+    this.roundText = label(this, sw / 2, 124, '', { size: 15, color: Ink.faint, origin: [0.5, 0.5] });
+    this.chipObjects = [];
 
     // party column
-    panel(this, 40, 160, 720, 840);
+    panel(this, 40, 230, 760, 790, 0.5);
+    label(this, 72, 252, 'THE PARTY', { size: 15, color: Ink.faint });
     this.partyRows = this.party.map((m, i) => {
-      const y = 200 + i * 260;
-      const name = this.add.text(80, y, m.name, bodyStyle({ fontSize: '34px', color: '#ffe9b0' }));
-      const hpBar = statBar(this, 80, y + 56, 440, 24, Colors.good);
-      const hpText = this.add.text(540, y + 52, '', uiStyle({ fontSize: '24px' }));
-      const focusBar = statBar(this, 80, y + 96, 440, 16, Colors.focus);
-      const focusText = this.add.text(540, y + 88, '', uiStyle({ fontSize: '24px', color: '#9ec4e8' }));
-      const status = this.add.text(80, y + 128, '', uiStyle({ fontSize: '24px', color: Colors.textDim }));
-      const zone = this.add.rectangle(400, y + 90, 700, 220, 0xffffff, 0).setInteractive({ useHandCursor: true });
+      const y = 304 + i * 240;
+      const name = this.add.text(80, y, m.name, displayStyle({ fontSize: '36px' }));
+      const status = label(this, 740, y + 14, '', { size: 15, color: Ink.faint, origin: [1, 0.5] });
+      const hpBar = statBar(this, 80, y + 62, 480, 10, Palette.accent);
+      const hpText = this.add.text(584, y + 54, '', monoStyle({ fontSize: '19px', color: Ink.dim }));
+      const focusBar = statBar(this, 80, y + 92, 480, 8, Palette.brass);
+      const focusText = this.add.text(584, y + 84, '', monoStyle({ fontSize: '19px', color: Ink.brass }));
+      const zone = this.add.rectangle(420, y + 70, 740, 200, 0xffffff, 0).setInteractive({ useHandCursor: true });
       zone.on('pointerdown', () => this.onAllyClicked(m));
       return { m, name, hpBar, hpText, focusBar, focusText, status, zone };
     });
 
     // enemy column
-    panel(this, sw - 840, 160, 800, 840);
+    panel(this, sw - 840, 230, 800, 790, 0.5);
+    label(this, sw - 808, 252, 'WHAT STANDS AGAINST YOU', { size: 15, color: Ink.faint });
     this.enemyRows = this.enemies.map((e, i) => {
-      const y = 200 + i * 260;
-      const name = this.add.text(sw - 800, y, e.name, bodyStyle({ fontSize: '34px', color: '#e8b0a0' }));
-      const hpBar = statBar(this, sw - 800, y + 56, 440, 24, Colors.danger);
-      const hpText = this.add.text(sw - 340, y + 52, '', uiStyle({ fontSize: '24px' }));
-      const tough = this.add.text(sw - 800, y + 92, '', uiStyle({ fontSize: '26px', color: '#d8c06a' }));
-      const weak = this.add.text(sw - 800, y + 132, '', uiStyle({ fontSize: '24px', color: '#b89ad8' }));
-      const banner = this.add.text(sw - 120, y + 4, '', uiStyle({ fontSize: '26px', color: '#ffd24a', fontStyle: 'bold' })).setOrigin(1, 0);
-      const zone = this.add.rectangle(sw - 440, y + 90, 780, 220, 0xffffff, 0).setInteractive({ useHandCursor: true });
+      const y = 304 + i * 240;
+      const name = this.add.text(sw - 800, y, e.name, displayStyle({ fontSize: '36px' }));
+      const banner = label(this, sw - 80, y + 14, '', { size: 16, color: Ink.accentBright, origin: [1, 0.5] });
+      const hpBar = statBar(this, sw - 800, y + 62, 480, 10, Palette.accent);
+      const hpText = this.add.text(sw - 296, y + 54, '', monoStyle({ fontSize: '19px', color: Ink.dim }));
+      const tough = this.add.text(sw - 800, y + 92, '', monoStyle({ fontSize: '21px', color: Ink.brass }));
+      track(tough, 6);
+      const weak = this.add.text(sw - 800, y + 134, '', monoStyle({ fontSize: '17px', color: Ink.dim, wordWrap: { width: 720 } }));
+      const zone = this.add.rectangle(sw - 440, y + 90, 780, 210, 0xffffff, 0).setInteractive({ useHandCursor: true });
       zone.on('pointerdown', () => this.onEnemyClicked(e));
-      const hover = this.add.rectangle(sw - 440, y + 90, 780, 220).setStrokeStyle(2, 0xd8b36a, 0.9).setVisible(false);
+      const hover = this.add.rectangle(sw - 440, y + 90, 780, 210).setStrokeStyle(2, Palette.lineStrong, 1).setVisible(false);
       zone.on('pointerover', () => { if (this.phase === 'target' && this.targetSide === 'enemy' && e.hp > 0) hover.setVisible(true); });
       zone.on('pointerout', () => hover.setVisible(false));
       return { e, name, hpBar, hpText, tough, weak, banner, zone, hover };
     });
 
     // log
-    panel(this, 40, 1040, 1200, 360);
+    panel(this, 40, 1050, 1200, 350, 0.5);
+    label(this, 72, 1074, 'THE RECORD', { size: 15, color: Ink.faint });
     this.logLines = [];
-    this.logText = this.add.text(72, 1064, '', uiStyle({ fontSize: '26px', color: '#c8c4b8', lineSpacing: 10, wordWrap: { width: 1140 } }));
+    this.logText = this.add.text(72, 1116, '', proseStyle({ fontSize: '26px', color: Ink.dim, lineSpacing: 8, wordWrap: { width: 1136 } }));
 
     // action menu
-    panel(this, 1280, 1040, 1240, 360);
+    panel(this, 1280, 1050, 1240, 350, 0.5);
     this.menuObjects = [];
 
     // timing widget area (center)
@@ -152,26 +164,69 @@ export class CombatScene extends Phaser.Scene {
   refreshUi() {
     for (const r of this.partyRows) {
       r.hpBar.update(r.m.hp, r.m.maxHp);
-      r.hpText.setText(`${Math.max(0, r.m.hp)}/${r.m.maxHp}`);
+      r.hpText.setText(`${Math.max(0, r.m.hp)} / ${r.m.maxHp}`);
       r.focusBar.update(r.m.focus, r.m.maxFocus);
-      r.focusText.setText(`${r.m.focus}`);
-      r.status.setText(r.m.hp <= 0 ? 'DOWN' : r.m.defending ? 'defending' : '');
-      r.name.setColor(r.m.hp <= 0 ? Colors.disabled : '#ffe9b0');
+      r.focusText.setText(`${r.m.focus} ◈`);
+      r.status.setText(r.m.hp <= 0 ? 'DOWN' : r.m.defending ? 'BRACED' : '');
+      r.status.setColor(r.m.hp <= 0 ? Ink.accentBright : Ink.faint);
+      r.name.setColor(r.m.hp <= 0 ? Ink.faint : Ink.ink);
     }
     for (const r of this.enemyRows) {
       r.hpBar.update(r.e.hp, r.e.maxHp);
-      r.hpText.setText(`${Math.max(0, r.e.hp)}/${r.e.maxHp}`);
+      r.hpText.setText(`${Math.max(0, r.e.hp)} / ${r.e.maxHp}`);
       const pips = '◆'.repeat(Math.max(0, r.e.toughness)) + '◇'.repeat(r.e.maxToughness - Math.max(0, r.e.toughness));
-      r.tough.setText(r.e.hp > 0 ? `toughness ${pips}` : '');
-      r.weak.setText(r.e.hp > 0 ? (r.e.revealed ? `weak: ${r.e.weaknesses.join(', ')} · resists: ${r.e.resists.join(', ') || '—'}` : 'weak: ???') : '');
-      r.banner.setText(r.e.hp <= 0 ? 'slain' : r.e.broken ? 'BROKEN' : '');
-      r.name.setColor(r.e.hp <= 0 ? Colors.disabled : '#e8b0a0');
+      r.tough.setText(r.e.hp > 0 ? pips : '');
+      r.weak.setText(r.e.hp > 0
+        ? (r.e.revealed
+          ? `WEAK ${r.e.weaknesses.join(', ').toUpperCase()}  ·  RESISTS ${(r.e.resists.join(', ') || '—').toUpperCase()}`
+          : 'WEAK ???')
+        : '');
+      r.banner.setText(r.e.hp <= 0 ? 'SLAIN' : r.e.broken ? 'BROKEN' : '');
+      r.name.setColor(r.e.hp <= 0 ? Ink.faint : Ink.ink);
     }
+    this.refreshChips();
   }
 
   clearMenu() {
     this.menuObjects.forEach((o) => o.destroy());
     this.menuObjects = [];
+  }
+
+  // ----------------------------------------------------------- order chips --
+
+  /** One bordered chip per combatant in this round's order. */
+  buildChips() {
+    this.chipObjects.forEach((c) => c.destroy());
+    this.chipObjects = this.order.map((c, i) => {
+      const w = 56, h = 64, gap = 10;
+      const x = this.scale.width / 2 + (i - (this.order.length - 1) / 2) * (w + gap);
+      const cont = this.add.container(x, 184);
+      const g = this.add.graphics();
+      const initials = c.name.split(/\s+/).map((p) => p.charAt(0)).join('').slice(0, 3).toUpperCase();
+      const t = this.add.text(0, 0, initials, monoStyle({ fontSize: '18px', color: Ink.faint })).setOrigin(0.5);
+      cont.add([g, t]);
+      cont.chipDraw = (current) => {
+        g.clear();
+        g.fillStyle(Palette.bgPage, 0.8);
+        g.fillRect(-w / 2, -h / 2, w, h);
+        g.lineStyle(2, c.isParty ? (current ? Palette.lineStrong : Palette.line) : 0x4a2620, 1);
+        g.strokeRect(-w / 2, -h / 2, w, h);
+        if (current) {
+          g.lineStyle(3, Palette.accent, 1);
+          g.lineBetween(-w / 2, h / 2 + 6, w / 2, h / 2 + 6);
+        }
+        t.setColor(c.hp <= 0 ? Ink.faint : current ? Ink.ink : Ink.dim);
+        cont.setAlpha(c.hp <= 0 ? 0.3 : current ? 1 : 0.75);
+      };
+      cont.chipFor = c;
+      cont.chipDraw(false);
+      return cont;
+    });
+  }
+
+  refreshChips() {
+    const current = this.order?.[this.turnIdx - 1] ?? null;
+    for (const chip of this.chipObjects ?? []) chip.chipDraw(chip.chipFor === current);
   }
 
   // ------------------------------------------------------------ turn flow --
@@ -183,7 +238,8 @@ export class CombatScene extends Phaser.Scene {
     this.round++;
     this.order = turnOrder([...this.party, ...this.enemies]);
     this.turnIdx = 0;
-    this.roundText.setText(`round ${this.round} · order: ${this.order.map((c) => c.name).join(' → ')}`);
+    this.roundText.setText(`ROUND ${this.round}`);
+    this.buildChips();
     this.nextTurn();
   }
 
@@ -194,6 +250,7 @@ export class CombatScene extends Phaser.Scene {
     if (this.turnIdx >= this.order.length) return this.startRound();
     const actor = this.order[this.turnIdx++];
     if (actor.hp <= 0) return this.nextTurn();
+    this.refreshChips();
     if (actor.isParty) this.beginPlayerTurn(actor);
     else this.beginEnemyTurn(actor);
   }
@@ -212,36 +269,60 @@ export class CombatScene extends Phaser.Scene {
   showActionMenu(actor) {
     this.clearMenu();
     const put = (o) => { this.menuObjects.push(o); return o; };
-    put(this.add.text(1312, 1060, `${actor.name} — choose an action`, uiStyle({ fontSize: '28px', color: '#ffe9b0' })));
+    put(label(this, 1312, 1074, `${actor.name} — TO ACT`, { size: 16, color: Ink.ink }));
 
     actor.abilities.forEach((abilityId, i) => {
       const ab = this.reg.abilities.get(abilityId);
       const affordable = actor.focus >= ab.focusCost;
-      const col = i % 2, row = Math.floor(i / 2);
-      const label = `${ab.name}${ab.focusCost ? ` (${ab.focusCost}◈)` : ''} · ${ab.kind === 'heal' ? 'heal' : ab.element}`;
-      put(textButton(this, 1312 + col * 600, 1116 + row * 52, label, {
-        disabled: !affordable,
-        style: { fontSize: '28px', color: affordable ? '#e8e4d8' : Colors.disabled },
-        onClick: () => this.pickAbility(actor, ab),
-      }));
+      put(this.abilityCard(1312 + (i % 4) * 300, 1112 + Math.floor(i / 4) * 136, ab, affordable, () => this.pickAbility(actor, ab)));
     });
 
-    const baseY = 1116 + Math.ceil(actor.abilities.length / 2) * 52 + 16;
-    put(textButton(this, 1312, baseY, `[ Defend ]  (+${this.tuning.focus.defendRegen}◈, half damage)`, {
-      style: { fontSize: '28px', color: '#9ec4e8' },
+    put(frameButton(this, 1392, 1296, 'Defend', {
+      framed: true, size: 14, padX: 24, padY: 12,
       onClick: () => this.doDefend(actor),
     }));
+    put(label(this, 1520, 1296, `+${this.tuning.focus.defendRegen}◈ · HALF DAMAGE`, { size: 14, color: Ink.faint, origin: [0, 0.5] }));
 
     const combatItems = Object.entries(GameState.inventory)
       .map(([id, qty]) => ({ item: this.reg.items.get(id), qty }))
       .filter((x) => x.item?.combat && x.qty > 0);
     combatItems.forEach((x, i) => {
-      put(textButton(this, 1312 + 600, baseY + i * 48, `Use ${x.item.name} ×${x.qty}`, {
-        style: { fontSize: '28px', color: '#d8c06a' },
+      put(textButton(this, 1860 + (i % 2) * 320, 1284, `${x.item.name.toUpperCase()} ×${x.qty}`, {
+        style: monoStyle({ fontSize: '17px', color: Ink.brass }),
+        hoverColor: Ink.ink,
         onClick: () => this.pickItem(actor, x.item),
       }));
     });
-    put(this.add.text(1312, 1352, 'timed hits & parries: SPACE', uiStyle({ fontSize: '22px', color: Colors.textDim })));
+    put(label(this, 1312, 1362, 'TIMED HITS & PARRIES — SPACE', { size: 14, color: Ink.faint }));
+  }
+
+  /** Framed ability card: name above, cost · element below. */
+  abilityCard(x, y, ab, affordable, onClick) {
+    const w = 288, h = 124;
+    const c = this.add.container(x + w / 2, y + h / 2);
+    const g = this.add.graphics();
+    const drawBorder = (color) => {
+      g.clear();
+      g.lineStyle(2, color, 1);
+      g.strokeRect(-w / 2, -h / 2, w, h);
+    };
+    drawBorder(Palette.line);
+    const name = this.add.text(0, -20, ab.name.toUpperCase(),
+      monoStyle({ fontSize: '17px', color: Ink.dim, align: 'center', wordWrap: { width: w - 24 } })).setOrigin(0.5);
+    track(name, 2);
+    const desc = `${ab.focusCost ? `${ab.focusCost}◈ · ` : ''}${ab.kind === 'heal' ? 'HEAL' : ab.element.toUpperCase()}`;
+    const cost = this.add.text(0, 28, desc, monoStyle({ fontSize: '15px', color: Ink.faint })).setOrigin(0.5);
+    c.add([g, name, cost]);
+    c.setSize(w, h);
+    if (!affordable) {
+      c.setAlpha(0.35);
+      return c;
+    }
+    c.setInteractive({ useHandCursor: true });
+    c.on('pointerover', () => { drawBorder(Palette.lineStrong); name.setColor(Ink.ink); });
+    c.on('pointerout', () => { drawBorder(Palette.line); name.setColor(Ink.dim); });
+    c.on('pointerdown', onClick);
+    return c;
   }
 
   pickAbility(actor, ability) {
@@ -268,9 +349,12 @@ export class CombatScene extends Phaser.Scene {
     if (pool.length === 1) return this.commitTarget(pool[0]);
     this.phase = 'target';
     this.clearMenu();
-    this.menuObjects.push(this.add.text(1312, 1080,
-      `${this.pendingMove.name} — click a ${targetType === 'enemy' ? 'target' : 'companion'}`,
-      uiStyle({ fontSize: '30px', color: '#ffe9b0' })));
+    this.menuObjects.push(label(this, 1312, 1090,
+      `${this.pendingMove.name} — CLICK A ${this.targetSide === 'enemy' ? 'TARGET' : 'COMPANION'}`,
+      { size: 17, color: Ink.ink }));
+    this.menuObjects.push(this.add.text(1312, 1144, this.targetSide === 'enemy'
+      ? 'Choose among what stands against you.' : 'Choose whom to spare the worst.',
+      proseStyle({ fontSize: '26px', fontStyle: 'italic', color: Ink.dim })));
   }
 
   onEnemyClicked(e) {
@@ -311,15 +395,16 @@ export class CombatScene extends Phaser.Scene {
   runTimedHit() {
     this.phase = 'timing';
     const t = this.tuning.timing.attack;
-    const cx = this.scale.width / 2, cy = 880, W = 720, H = 36;
+    const cx = this.scale.width / 2, cy = 880, W = 720, H = 26;
     const put = (o) => { this.timingObjects.push(o); return o; };
-    put(this.add.text(cx, cy - 68, `${this.pendingMove.name} — SPACE at the center!`, uiStyle({ fontSize: '28px', color: '#ffe9b0' })).setOrigin(0.5));
-    put(this.add.rectangle(cx, cy, W, H, 0x22242c).setStrokeStyle(2, Colors.panelEdge));
+    put(label(this, cx, cy - 64, `${this.pendingMove.name} — SPACE AT THE CENTER`,
+      { size: 18, color: Ink.ink, origin: [0.5, 0.5] }));
+    put(this.add.rectangle(cx, cy, W, H, Palette.bg3).setStrokeStyle(2, Palette.line));
     const goodW = (t.goodMs * 2 / t.sweepMs) * W;
     const perfW = (t.perfectMs * 2 / t.sweepMs) * W;
-    put(this.add.rectangle(cx, cy, goodW, H - 8, 0x5a7a4a));
-    put(this.add.rectangle(cx, cy, perfW, H - 8, 0xd8b36a));
-    const cursor = put(this.add.rectangle(cx - W / 2, cy, 6, H + 16, 0xffffff));
+    put(this.add.rectangle(cx, cy, goodW, H - 8, Palette.verdigris));
+    put(this.add.rectangle(cx, cy, perfW, H - 8, Palette.brass));
+    const cursor = put(this.add.rectangle(cx - W / 2, cy, 6, H + 18, Palette.ink));
 
     const started = this.time.now;
     let pressMs = null;
@@ -340,9 +425,12 @@ export class CombatScene extends Phaser.Scene {
       tick.remove();
       this.spaceHandler = null;
       const grade = gradeHit(this.tuning.timing, pressMs);
-      put(this.add.text(cx, cy + 56,
-        grade.grade === 'perfect' ? 'PERFECT!' : grade.grade === 'good' ? 'Good' : 'Off-beat',
-        uiStyle({ fontSize: '32px', fontStyle: 'bold', color: grade.grade === 'perfect' ? '#ffd24a' : grade.grade === 'good' ? '#9ec48a' : '#8a8a8a' })).setOrigin(0.5));
+      put(label(this, cx, cy + 54,
+        grade.grade === 'perfect' ? 'PERFECT' : grade.grade === 'good' ? 'GOOD' : 'OFF-BEAT',
+        {
+          size: 21, origin: [0.5, 0.5],
+          color: grade.grade === 'perfect' ? Ink.brass : grade.grade === 'good' ? Ink.verdigris : Ink.faint,
+        }));
       this.time.delayedCall(550, () => { this.clearTiming(); this.resolvePartyAttack(grade); });
     };
   }
@@ -412,21 +500,21 @@ export class CombatScene extends Phaser.Scene {
     const t = this.tuning.timing.parry;
     const cx = this.scale.width / 2, cy = 840;
     const put = (o) => { this.timingObjects.push(o); return o; };
-    put(this.add.text(cx, cy - 80, `${ability.name} → ${target.name} — SPACE at the flash to parry!`,
-      uiStyle({ fontSize: '28px', color: '#e8b0a0' })).setOrigin(0.5));
+    put(label(this, cx, cy - 84, `${ability.name} → ${target.name} — SPACE AT THE FLASH TO PARRY`,
+      { size: 18, color: Ink.accentBright, origin: [0.5, 0.5] }));
 
     let flashAt = null;       // time.now when the "!" appeared
     let pressMs;              // relative to flash; negative = early press
     this.spaceHandler = () => {
       if (pressMs !== undefined) return;
       pressMs = flashAt === null ? -1 : this.time.now - flashAt;
-      if (pressMs < 0) put(this.add.text(cx, cy + 52, 'too early!', uiStyle({ fontSize: '28px', color: '#c4554d' })).setOrigin(0.5));
+      if (pressMs < 0) put(label(this, cx, cy + 60, 'TOO EARLY', { size: 19, color: Ink.accentBright, origin: [0.5, 0.5] }));
     };
 
     const delay = telegraphDelay(this.tuning.timing);
     this.time.delayedCall(delay, () => {
       flashAt = this.time.now;
-      const flash = put(this.add.text(cx, cy, '!', titleStyle({ fontSize: '128px', color: '#ffd24a' })).setOrigin(0.5));
+      const flash = put(this.add.text(cx, cy, '!', displayStyle({ fontSize: '150px', color: Ink.accentBright })).setOrigin(0.5));
       this.tweens.add({ targets: flash, scale: 1.6, alpha: 0.4, duration: t.windowMs, ease: 'Quad.easeOut' });
       this.time.delayedCall(t.windowMs + 60, () => {
         this.spaceHandler = null;

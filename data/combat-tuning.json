@@ -93,5 +93,42 @@
     "zoomLevels": [1.5, 1, 0.65],
     "zoomDefaultIndex": 1,
     "zoomTweenMs": 220
+  },
+
+  "arena": {
+    "//": "Tactical hex-arena combat (combat-framework Phase 1). Independent of the legacy timed-hit combat above. The deferred modding menu will edit this block.",
+    "ap": {
+      "//": "AP economy: begin at start, +gainPerTurn each turn (carryover), clamp to per-unit cap (never above ceiling). A basic attack GENERATES basicAttackGain instead of costing AP. One Major + one Minor action per turn.",
+      "start": 3,
+      "gainPerTurn": 1,
+      "cap": 6,
+      "ceiling": 9,
+      "basicAttackGain": 1,
+      "majorPerTurn": 1,
+      "minorPerTurn": 1
+    },
+    "initiative": {
+      "//": "Action timer: every turn each combatant's timer drops by its Speed (floored at timerMin); lowest acts next; on turn end it resets to timerMax.",
+      "timerMax": 100,
+      "timerMin": 0
+    },
+    "accuracy": {
+      "//": "hit% = clamp(attacker.accuracy - target.evasion*evasionCoef - penalties, min, max). Ranged fired from the Frontline takes rangedFromFrontlinePenalty. coverPenalty is reserved for a later phase.",
+      "evasionCoef": 1.0,
+      "min": 5,
+      "max": 95,
+      "rangedFromFrontlinePenalty": 20,
+      "coverPenalty": { "full": 40, "half": 20, "partial": 10 }
+    },
+    "damage": {
+      "//": "damage = (move.power + attacker.power) * powerCoef * critMult * variance - target.resistance*resistanceCoef, min minDamage. Guard absorbs the result before HP.",
+      "powerCoef": 1.0,
+      "resistanceCoef": 1.0,
+      "minDamage": 1,
+      "variance": 0.12
+    },
+    "crit": { "chance": 0.1, "multiplier": 1.5 },
+    "reposition": { "apCost": 1 },
+    "useItem": { "apCost": 1 }
   }
 }

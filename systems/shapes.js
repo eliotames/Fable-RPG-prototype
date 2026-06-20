@@ -151,6 +151,49 @@ export const shapes = {
     )),
   }),
 
+  /** Tactical arena combatants — stats authored DIRECTLY (decoupled from attributes). */
+  combatants: S.obj({
+    combatants: S.arr(S.obj(
+      {
+        id: S.str, name: S.str,
+        maxHp: S.num, speed: S.num, power: S.num, accuracy: S.num,
+        meleeEvasion: S.num, rangedEvasion: S.num, resistance: S.num, guard: S.num,
+        basicAttack: S.obj({ range: S.oneOf(['melee', 'ranged']), power: S.num }),
+      },
+      {
+        optional: {
+          // AP overrides; otherwise inherit tuning.arena.ap defaults
+          apStart: S.int, apCap: S.int, apGainPerTurn: S.int,
+          glyph: S.str, color: S.str, desc: S.str,
+          // consulted only when this combatant is rostered on the enemy side
+          ai: S.obj({ targeting: S.oneOf(['lowestHp', 'nearest', 'random']) }),
+        },
+      }
+    )),
+  }),
+
+  /** Tactical arena layouts — battlefield size, roster placement, obstacle stubs. */
+  arenas: S.obj({
+    arenas: S.arr(S.obj(
+      {
+        id: S.str, name: S.str, spacesPerLane: S.int,
+        roster: S.arr(S.obj({
+          combatant: S.str, side: S.oneOf(['player', 'enemy']),
+          lane: S.oneOf(['front', 'back']), slot: S.int,
+        })),
+      },
+      {
+        optional: {
+          desc: S.str,
+          // inert in Phase 1: rendered and they block landing; cover/LoS is later
+          obstacles: S.arr(S.obj({
+            type: S.oneOf(['object', 'line']), kind: S.str, row: S.int, slot: S.int,
+          })),
+        },
+      }
+    )),
+  }),
+
   npcs: S.obj({
     npcs: S.arr(S.obj(
       { id: S.str, name: S.str, dialogue: S.str, glyph: S.str, color: S.str },
@@ -213,6 +256,22 @@ export const shapes = {
         { optional: { reviveHpFraction: S.num } }
       ),
       exploration: S.obj({ zoomLevels: S.arr(S.num), zoomDefaultIndex: S.int, zoomTweenMs: S.num }),
+      // Tactical arena combat (Phase 1). Pixel geometry is engine, not here.
+      arena: S.obj({
+        ap: S.obj({
+          start: S.int, gainPerTurn: S.int, cap: S.int, ceiling: S.int,
+          basicAttackGain: S.int, majorPerTurn: S.int, minorPerTurn: S.int,
+        }),
+        initiative: S.obj({ timerMax: S.num, timerMin: S.num }),
+        accuracy: S.obj({
+          evasionCoef: S.num, min: S.num, max: S.num, rangedFromFrontlinePenalty: S.num,
+          coverPenalty: S.obj({ full: S.num, half: S.num, partial: S.num }),
+        }),
+        damage: S.obj({ powerCoef: S.num, resistanceCoef: S.num, minDamage: S.num, variance: S.num }),
+        crit: S.obj({ chance: S.num, multiplier: S.num }),
+        reposition: S.obj({ apCost: S.num }),
+        useItem: S.obj({ apCost: S.num }),
+      }),
     },
     { open: true }
   ),

@@ -246,6 +246,52 @@ await step('ending: aftermath choice reaches the End scene with a win', async ()
   if (r.outcome !== 'win' || !r.done) throw new Error(JSON.stringify(r));
 });
 
+await step('tactical arena: boots from the menu, runs the turn loop to a result', async () => {
+  await page.evaluate(() => {
+    for (const k of ['MainMenu', 'CharacterCreation', 'Exploration', 'Dialogue', 'Combat', 'End', 'Options']) {
+      globalThis.game.scene.stop(k);
+    }
+    globalThis.game.scene.start('Arena');
+  });
+  await activeScene('Arena');
+  await page.setViewport({ width: 2560, height: 1440 });
+  // capture the battlefield once it is a hero's turn (menu visible) for visual review
+  await page.waitForFunction(() => {
+    const s = globalThis.game.scene.getScene('Arena');
+    return s && s.phase === 'menu' && s.actor?.side === 'player';
+  }, { timeout: 15000 });
+  await new Promise((r) => setTimeout(r, 200));
+  await page.screenshot({ path: '/tmp/arena-smoke.png' });
+
+  const r = await page.evaluate(async () => {
+    const s = globalThis.game.scene.getScene('Arena');
+    // bias toward a quick, deterministic finish (the math itself is unit-tested)
+    for (const u of s.units) if (u.side === 'enemy') { u.hp = 12; u.maxHp = 12; }
+    const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+    let sawPlayerAttack = false, sawEnemyTurn = false, repositioned = false;
+    const start = Date.now();
+    while (Date.now() - start < 60000) {
+      if (s.phase === 'done' || !globalThis.game.scene.isActive('Arena')) break;
+      if (s.phase === 'enemy') sawEnemyTurn = true;
+      if (s.phase === 'menu' && s.actor?.side === 'player') {
+        if (!s.actor.usedMinor && !repositioned) {
+          const mv = s.field.legalMoves(s.actor).find((m) => m.kind === 'move');
+          if (mv) { s.enterTargetMove(); s.doMove(mv.lane, mv.slot); repositioned = true; await sleep(40); continue; }
+        }
+        const targets = s.field.legalTargets(s.actor);
+        if (!s.actor.usedMajor && targets.length) { s.commitBasicAttack(targets[0].target); sawPlayerAttack = true; }
+        else s.endActorTurn(s.actor);
+      }
+      await sleep(40);
+    }
+    return { units: s.units.length, phase: s.phase, ended: s.ended, sawPlayerAttack, sawEnemyTurn, repositioned, log: s.logLines.slice(-2) };
+  });
+  if (r.units < 6) throw new Error(`expected 6 units, got ${r.units}`);
+  if (!r.sawPlayerAttack || !r.sawEnemyTurn) throw new Error(`loop did not exercise both sides: ${JSON.stringify(r)}`);
+  if (!r.repositioned) throw new Error('reposition path not exercised');
+  if (!r.ended || r.phase !== 'done') throw new Error(`battle did not resolve: ${JSON.stringify(r)}`);
+});
+
 await step('no console errors across the whole run', async () => {
   const real = consoleErrors.filter((e) => !e.includes('favicon'));
   if (real.length) throw new Error(real.slice(0, 5).join('\n      '));

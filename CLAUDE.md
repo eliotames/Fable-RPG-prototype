@@ -20,6 +20,12 @@ only if the user explicitly asks about story content.
 - **Combat rules** (damage, break, turn order, timed hits/parries):
   `systems/CombatMath.js`, `systems/TimingJudge.js`, `scenes/CombatScene.js`,
   `data/combat-tuning.json`
+- **Tactical arena combat** (the `references/combat-framework.md` rebuild — hex
+  battlefield, lanes, AP economy, action-timer turn order, positioning/targeting; a
+  standalone playtest reachable from the main menu, decoupled from attributes):
+  `scenes/ArenaScene.js`, `systems/HexGrid.js`, `systems/Battlefield.js`,
+  `systems/InitiativeTimer.js`, `systems/CombatResolver.js`, `data/arenas.json`,
+  `data/arena-combatants.json`, `arena` block of `data/combat-tuning.json`
 - **Skill checks / dialogue mechanics** (voices, active checks, option gating):
   `systems/CheckResolver.js`, `scenes/DialogueScene.js`, `systems/Script.js`,
   `checks` block of `data/combat-tuning.json`

@@ -25,6 +25,8 @@ export class ContentRegistry {
     /** @type {Map<string,object>} */ this.items = new Map();
     /** @type {Map<string,object>} */ this.enemies = new Map();
     /** @type {Map<string,object>} */ this.encounters = new Map();
+    /** @type {Map<string,object>} */ this.combatants = new Map();
+    /** @type {Map<string,object>} */ this.arenas = new Map();
     /** @type {Map<string,object>} */ this.npcs = new Map();
     /** @type {Map<string,object>} */ this.partyMembers = new Map();
     /** @type {Map<string,object>} */ this.quests = new Map();
@@ -66,6 +68,8 @@ export class ContentRegistry {
         indexInto(this.enemies, json.enemies, 'enemy');
         indexInto(this.encounters, json.encounters, 'encounter');
         break;
+      case 'combatants': indexInto(this.combatants, json.combatants, 'combatant'); break;
+      case 'arenas': indexInto(this.arenas, json.arenas, 'arena'); break;
       case 'npcs': indexInto(this.npcs, json.npcs, 'npc'); break;
       case 'party': indexInto(this.partyMembers, json.partyMembers, 'party member'); break;
       case 'quests': indexInto(this.quests, json.quests, 'quest'); break;
@@ -126,6 +130,24 @@ export class ContentRegistry {
       for (const en of enc.enemies) if (!this.enemies.has(en)) p.push(`encounters.${id}: unknown enemy "${en}"`);
       for (const mod of enc.modifiers ?? []) {
         if (!this.enemies.has(mod.enemy)) p.push(`encounters.${id}: modifier targets unknown enemy "${mod.enemy}"`);
+      }
+    }
+    for (const [id, a] of this.arenas) {
+      const occupied = new Set();
+      const sides = new Set();
+      for (const r of a.roster) {
+        if (!this.combatants.has(r.combatant)) p.push(`arenas.${id}: unknown combatant "${r.combatant}"`);
+        if (r.slot < 0 || r.slot >= a.spacesPerLane) p.push(`arenas.${id}: roster slot ${r.slot} out of range 0..${a.spacesPerLane - 1}`);
+        const cell = `${r.side}/${r.lane}/${r.slot}`;
+        if (occupied.has(cell)) p.push(`arenas.${id}: two combatants stacked on cell ${cell}`);
+        occupied.add(cell);
+        sides.add(r.side);
+      }
+      if (!sides.has('player')) p.push(`arenas.${id}: roster has no player-side combatant`);
+      if (!sides.has('enemy')) p.push(`arenas.${id}: roster has no enemy-side combatant`);
+      for (const o of a.obstacles ?? []) {
+        if (o.row < 0 || o.row >= 6) p.push(`arenas.${id}: obstacle row ${o.row} out of range 0..5`);
+        if (o.slot < 0 || o.slot >= a.spacesPerLane) p.push(`arenas.${id}: obstacle slot ${o.slot} out of range`);
       }
     }
     for (const [id, n] of this.npcs) {

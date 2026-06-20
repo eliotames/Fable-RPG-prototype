@@ -13,6 +13,7 @@ import { CharacterCreationScene } from './scenes/CharacterCreationScene.js';
 import { ExplorationScene } from './scenes/ExplorationScene.js';
 import { DialogueScene } from './scenes/DialogueScene.js';
 import { CombatScene } from './scenes/CombatScene.js';
+import { ArenaScene } from './scenes/ArenaScene.js';
 import { EndScene } from './scenes/EndScene.js';
 import { GameState } from './systems/GameState.js';
 import { QuestSystem } from './systems/QuestSystem.js';
@@ -31,7 +32,7 @@ const config = {
   },
   scene: [
     BootScene, PreloadScene, MainMenuScene, OptionsScene, CharacterCreationScene,
-    ExplorationScene, DialogueScene, CombatScene, EndScene,
+    ExplorationScene, DialogueScene, CombatScene, ArenaScene, EndScene,
   ],
 };
 

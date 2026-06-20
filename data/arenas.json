@@ -1,0 +1,24 @@
+{
+  "//": "Tactical-arena layouts. spacesPerLane = slots in each lane. roster places combatants (data/arena-combatants.json) onto side (player|enemy) + lane (front|back) + slot (0..spacesPerLane-1). obstacles are inert in Phase 1: rendered, and they block landing. obstacle.row indexes the six battlefield rows: 0 enemy-back, 1 enemy-front, 2/3 no-man's-land, 4 player-front, 5 player-back.",
+  "arenas": [
+    {
+      "id": "skirmish",
+      "name": "Greyreach Skirmish",
+      "desc": "A first tactical playtest: three heroes against three husks across the hush.",
+      "spacesPerLane": 3,
+      "roster": [
+        { "combatant": "stalker", "side": "player", "lane": "front", "slot": 0 },
+        { "combatant": "warden", "side": "player", "lane": "front", "slot": 1 },
+        { "combatant": "kindler", "side": "player", "lane": "back", "slot": 1 },
+
+        { "combatant": "mute-wisp", "side": "enemy", "lane": "front", "slot": 0 },
+        { "combatant": "husk-brute", "side": "enemy", "lane": "front", "slot": 1 },
+        { "combatant": "shade-archer", "side": "enemy", "lane": "back", "slot": 1 }
+      ],
+      "obstacles": [
+        { "type": "object", "kind": "tree", "row": 2, "slot": 2 },
+        { "type": "object", "kind": "tree", "row": 3, "slot": 0 }
+      ]
+    }
+  ]
+}

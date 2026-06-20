@@ -26,6 +26,10 @@ import { mulberry32 } from '../systems/rng.js';
 import { GameState } from '../systems/GameState.js';
 import { QuestSystem } from '../systems/QuestSystem.js';
 import { evaluateConditions, applyEffects } from '../systems/Script.js';
+import { cellDistance, cellPixel, rowIndexFor } from '../systems/HexGrid.js';
+import { Battlefield } from '../systems/Battlefield.js';
+import { initTimers, decrementAll, pickNext, resetTimer } from '../systems/InitiativeTimer.js';
+import * as CR from '../systems/CombatResolver.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -395,6 +399,152 @@ check('defeat path: losing combat produces a defeat ending state', () => {
   GameState.reset();
   GameState.ending = { outcome: 'defeat', epilogue: '' };
   eq(GameState.ending.outcome, 'defeat', 'defeat state holds');
+});
+
+// ---------------------------------------------------------------------------
+console.log('\n[8] tactical arena combat');
+
+const aTune = reg.tuning.arena;
+
+check('arena content loaded (combatants + arenas indexed)', () => {
+  assert(reg.arenas.has('skirmish'), 'skirmish arena');
+  assert(reg.combatants.has('warden') && reg.combatants.has('husk-brute'), 'combatant templates');
+});
+
+check('arena validation catches a stacked roster cell', () => {
+  const reg2 = new ContentRegistry();
+  for (const entry of manifest.files) {
+    const json = loadJson(entry.path);
+    if (entry.key === 'arenas') {
+      const r0 = json.arenas[0].roster[0];
+      json.arenas[0].roster.push({ ...r0 }); // duplicate cell
+    }
+    reg2.ingest(entry.type, entry.key, json, entry.path);
+  }
+  let threw = null;
+  try { reg2.finalize(); } catch (e) { threw = e; }
+  assert(threw && threw.problems.some((p) => p.includes('stacked')), 'expected a stacked-cell error');
+});
+
+check('hex distance: adjacency, symmetry, closer rows nearer', () => {
+  eq(cellDistance({ rowIndex: 4, col: 0 }, { rowIndex: 4, col: 1 }), 1, 'same-row neighbours');
+  eq(cellDistance({ rowIndex: 1, col: 1 }, { rowIndex: 4, col: 1 }),
+     cellDistance({ rowIndex: 4, col: 1 }, { rowIndex: 1, col: 1 }), 'symmetric');
+  const frontFront = cellDistance({ rowIndex: 4, col: 1 }, { rowIndex: 1, col: 1 });
+  const frontBack = cellDistance({ rowIndex: 4, col: 1 }, { rowIndex: 0, col: 1 });
+  assert(frontFront < frontBack, 'opposing front is nearer than opposing back');
+});
+
+check('hex pixels: rows descend the screen, columns are distinct', () => {
+  const spp = 3;
+  for (let r = 1; r < 6; r++) {
+    assert(cellPixel(r, 0, spp).y > cellPixel(r - 1, 0, spp).y, `row ${r} below ${r - 1}`);
+  }
+  assert(cellPixel(4, 0, spp).x !== cellPixel(4, 1, spp).x, 'distinct columns');
+});
+
+const mkUnit = (over) => ({
+  uid: 0, side: 'player', lane: 'front', slot: 0, alive: true, hp: 10, speed: 5,
+  basicAttack: { range: 'melee', power: 5 }, ...over,
+});
+
+check('battlefield targeting: melee front-only, ranged any with frontline flag', () => {
+  const arena = { spacesPerLane: 3, obstacles: [] };
+  const pMelee = mkUnit({ uid: 1, side: 'player', lane: 'front', slot: 0 });
+  const pRangedBack = mkUnit({ uid: 2, side: 'player', lane: 'back', slot: 1, basicAttack: { range: 'ranged', power: 5 } });
+  const eFront = mkUnit({ uid: 3, side: 'enemy', lane: 'front', slot: 0 });
+  const eBack = mkUnit({ uid: 4, side: 'enemy', lane: 'back', slot: 1 });
+  const bf = new Battlefield(arena, [pMelee, pRangedBack, eFront, eBack]);
+
+  const melee = bf.legalTargets(pMelee);
+  eq(melee.length, 1, 'melee from front hits only opposing front');
+  eq(melee[0].target, eFront, 'the opposing front unit');
+
+  const pMeleeBack = mkUnit({ uid: 5, side: 'player', lane: 'back', slot: 0 });
+  eq(new Battlefield(arena, [pMeleeBack, eFront]).legalTargets(pMeleeBack).length, 0, 'melee from back hits nothing');
+
+  const ranged = bf.legalTargets(pRangedBack);
+  eq(ranged.length, 2, 'ranged hits any opposing unit');
+  assert(ranged.every((e) => !e.rangedFromFrontline), 'no penalty from the backline');
+
+  const pRangedFront = mkUnit({ uid: 6, side: 'player', lane: 'front', slot: 2, basicAttack: { range: 'ranged', power: 5 } });
+  const bf2 = new Battlefield(arena, [pRangedFront, eFront, eBack]);
+  assert(bf2.legalTargets(pRangedFront).every((e) => e.rangedFromFrontline), 'frontline ranged is flagged');
+});
+
+check('battlefield reposition: move, swap, obstacle blocks landing', () => {
+  const u = mkUnit({ uid: 1, side: 'player', lane: 'front', slot: 0 });
+  const ally = mkUnit({ uid: 2, side: 'player', lane: 'back', slot: 0 });
+  const bf = new Battlefield({ spacesPerLane: 3, obstacles: [] }, [u, ally]);
+  const moves = bf.legalMoves(u);
+  assert(moves.some((m) => m.kind === 'move' && m.lane === 'front' && m.slot === 1), 'empty cell offered');
+  assert(moves.some((m) => m.kind === 'swap' && m.target === ally), 'ally swap offered');
+  bf.move(u, 'front', 2); eq(u.slot, 2, 'moved');
+  bf.swap(u, ally);
+  assert(u.lane === 'back' && u.slot === 0 && ally.lane === 'front' && ally.slot === 2, 'swapped cells');
+
+  const blocked = new Battlefield(
+    { spacesPerLane: 3, obstacles: [{ row: rowIndexFor('player', 'front'), slot: 1 }] },
+    [mkUnit({ uid: 3, side: 'player', lane: 'back', slot: 0 })],
+  );
+  assert(!blocked.emptyCells('player').some((c) => c.lane === 'front' && c.slot === 1), 'obstacle cell not landable');
+});
+
+check('action timer: decrement, lowest-first, ties→speed, reset, floor', () => {
+  const u = [mkUnit({ uid: 0, speed: 10, timer: 0 }), mkUnit({ uid: 1, speed: 6, timer: 0 })];
+  initTimers(u, aTune); eq(u[0].timer, aTune.initiative.timerMax, 'init full');
+  decrementAll(u, aTune); eq(u[0].timer, 90, 'fast drops more'); eq(u[1].timer, 94);
+  eq(pickNext(u).uid, 0, 'lowest timer acts');
+  resetTimer(u[0], aTune); eq(u[0].timer, 100, 'reset to full');
+
+  const tie = [mkUnit({ uid: 0, speed: 5, timer: 0 }), mkUnit({ uid: 1, speed: 9, timer: 0 }), mkUnit({ uid: 2, speed: 9, timer: 0 })];
+  eq(pickNext(tie).uid, 1, 'tie → highest speed, then lowest uid');
+
+  const slow = [mkUnit({ uid: 0, speed: 250, timer: 100 })];
+  decrementAll(slow, aTune); eq(slow[0].timer, aTune.initiative.timerMin, 'floored at timerMin');
+});
+
+check('action timer: faster combatants act more often', () => {
+  const sim = [mkUnit({ uid: 0, speed: 14, timer: 100, count: 0 }), mkUnit({ uid: 1, speed: 6, timer: 100, count: 0 })];
+  for (let i = 0; i < 30; i++) { decrementAll(sim, aTune); const a = pickNext(sim); a.count++; resetTimer(a, aTune); }
+  assert(sim[0].count > sim[1].count, 'higher Speed → more turns');
+});
+
+check('AP economy: gain + carryover + cap, ceiling, basic-attack generates', () => {
+  const ap = aTune.ap;
+  eq(CR.apAfterGain({ ap: 3 }, ap), Math.min(ap.cap, 3 + ap.gainPerTurn), 'gain + carryover');
+  eq(CR.apAfterGain({ ap: ap.cap }, ap), Math.min(ap.cap, ap.ceiling), 'clamped at cap');
+  eq(CR.apCapOf({ apCap: 50 }, ap), ap.ceiling, 'per-unit cap never exceeds ceiling');
+  const g = { ap: 2 }; CR.gainAp(g, 1, ap); eq(g.ap, 3, 'basic attack adds AP');
+  const s = { ap: 2 }; assert(CR.canSpend(s, 1) && !CR.canSpend(s, 3), 'afford check'); CR.spend(s, 1); eq(s.ap, 1, 'spent');
+  const f = { usedMajor: true, usedMinor: true }; CR.resetActionFlags(f); assert(!f.usedMajor && !f.usedMinor, 'flags reset');
+});
+
+check('accuracy: evasion by range, frontline penalty, clamp, determinism', () => {
+  const acc = aTune.accuracy;
+  const atk = { accuracy: 80, power: 10 };
+  const tgt = { meleeEvasion: 20, rangedEvasion: 5 };
+  eq(CR.hitChance(atk, tgt, { range: 'melee' }, acc), 80 - 20 * acc.evasionCoef, 'melee evasion');
+  eq(CR.hitChance(atk, tgt, { range: 'ranged' }, acc), 80 - 5 * acc.evasionCoef, 'ranged evasion');
+  eq(CR.hitChance(atk, tgt, { range: 'ranged', rangedFromFrontline: true }, acc),
+     80 - 5 * acc.evasionCoef - acc.rangedFromFrontlinePenalty, 'frontline penalty');
+  eq(CR.hitChance({ accuracy: 999 }, { meleeEvasion: 0, rangedEvasion: 0 }, { range: 'melee' }, acc), acc.max, 'clamped to max');
+  eq(CR.rollHit(atk, tgt, { range: 'melee' }, acc, mulberry32(5)).hit,
+     CR.rollHit(atk, tgt, { range: 'melee' }, acc, mulberry32(5)).hit, 'seeded determinism');
+});
+
+check('damage: power+resistance, crit, min floor, guard absorbs first', () => {
+  const noVar = () => 0.5; // zero variance
+  const atk = { power: 10 };
+  const tgt = { resistance: 4, guard: 0 };
+  eq(CR.computeDamage(atk, tgt, { power: 6 }, { crit: false }, aTune, noVar).amount,
+     Math.round((6 + 10) * aTune.damage.powerCoef - 4 * aTune.damage.resistanceCoef), 'base damage');
+  eq(CR.computeDamage(atk, tgt, { power: 6 }, { crit: true }, aTune, noVar).amount,
+     Math.round((6 + 10) * aTune.crit.multiplier - 4), 'crit multiplies');
+  eq(CR.computeDamage({ power: 0 }, { resistance: 999, guard: 0 }, { power: 1 }, { crit: false }, aTune, noVar).amount,
+     aTune.damage.minDamage, 'min-damage floor');
+  const dg = CR.computeDamage({ power: 0 }, { resistance: 0, guard: 5 }, { power: 10 }, { crit: false }, aTune, noVar);
+  assert(dg.toGuard === 5 && dg.toHp === dg.amount - 5, 'guard absorbs before HP');
 });
 
 // ---------------------------------------------------------------------------

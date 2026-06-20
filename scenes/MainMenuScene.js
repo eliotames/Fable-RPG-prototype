@@ -36,6 +36,7 @@ export class MainMenuScene extends Phaser.Scene {
     const items = [
       { text: 'CONTINUE', sub: 'NO CHRONICLE KEPT YET', dim: true },
       { text: 'NEW GAME', onClick: () => { GameState.reset(); this.scene.start('CharacterCreation'); } },
+      { text: 'COMBAT ARENA', sub: 'TACTICAL PLAYTEST', onClick: () => this.scene.start('Arena') },
       { text: 'OPTIONS', onClick: () => this.scene.start('Options') },
     ];
     let y = 830;

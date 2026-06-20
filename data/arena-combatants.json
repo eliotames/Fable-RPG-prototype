@@ -1,0 +1,62 @@
+{
+  "//": "Tactical-arena combatant templates. Stats are authored DIRECTLY here, not derived from attributes — combat is decoupled from progression (combat-framework.md). Side-agnostic; data/arenas.json decides which side a template fights on. 'ai' is used only on the enemy side. apStart/apCap/apGainPerTurn are optional; omit to inherit tuning.arena.ap.",
+  "combatants": [
+    {
+      "id": "warden",
+      "name": "Warden",
+      "desc": "A bulwark in plate — slow, hard to move, hard to fell.",
+      "glyph": "W", "color": "#6f9a4e",
+      "maxHp": 64, "speed": 8, "power": 12, "accuracy": 80,
+      "meleeEvasion": 10, "rangedEvasion": 6, "resistance": 6, "guard": 0,
+      "basicAttack": { "range": "melee", "power": 10 }
+    },
+    {
+      "id": "stalker",
+      "name": "Stalker",
+      "desc": "Quick blades and quicker feet; little armor to spare.",
+      "glyph": "S", "color": "#9bd3c0",
+      "maxHp": 38, "speed": 15, "power": 10, "accuracy": 86,
+      "meleeEvasion": 22, "rangedEvasion": 16, "resistance": 2, "guard": 0,
+      "basicAttack": { "range": "melee", "power": 9 }
+    },
+    {
+      "id": "kindler",
+      "name": "Kindler",
+      "desc": "Calls fire from the backline; fragile up close.",
+      "glyph": "K", "color": "#c09a52",
+      "maxHp": 34, "speed": 11, "power": 15, "accuracy": 82,
+      "meleeEvasion": 8, "rangedEvasion": 12, "resistance": 2, "guard": 0,
+      "basicAttack": { "range": "ranged", "power": 11 }
+    },
+    {
+      "id": "husk-brute",
+      "name": "Husk Brute",
+      "desc": "A heavy, lurching husk that wades into the front.",
+      "glyph": "B", "color": "#9c3b2e",
+      "maxHp": 52, "speed": 7, "power": 11, "accuracy": 76,
+      "meleeEvasion": 6, "rangedEvasion": 4, "resistance": 5, "guard": 0,
+      "basicAttack": { "range": "melee", "power": 10 },
+      "ai": { "targeting": "lowestHp" }
+    },
+    {
+      "id": "mute-wisp",
+      "name": "Mute Wisp",
+      "desc": "A darting mote of hush — fast, flimsy, relentless.",
+      "glyph": "w", "color": "#8fbdd8",
+      "maxHp": 26, "speed": 16, "power": 7, "accuracy": 82,
+      "meleeEvasion": 18, "rangedEvasion": 16, "resistance": 1, "guard": 0,
+      "basicAttack": { "range": "melee", "power": 7 },
+      "ai": { "targeting": "nearest" }
+    },
+    {
+      "id": "shade-archer",
+      "name": "Shade Archer",
+      "desc": "Looses bolts of stillness from the enemy backline.",
+      "glyph": "a", "color": "#b06a9c",
+      "maxHp": 30, "speed": 11, "power": 10, "accuracy": 80,
+      "meleeEvasion": 8, "rangedEvasion": 10, "resistance": 2, "guard": 0,
+      "basicAttack": { "range": "ranged", "power": 9 },
+      "ai": { "targeting": "lowestHp" }
+    }
+  ]
+}

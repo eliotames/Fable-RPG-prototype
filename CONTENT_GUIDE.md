@@ -32,7 +32,8 @@ graph and math checks.
 
 - `key` — unique cache id (any string).
 - `type` — how the engine validates/indexes the file: `attributes` `skills` `races`
-  `classes` `abilities` `items` `enemies` `npcs` `party` `quests` `tuning` `dialogue` `map`.
+  `classes` `abilities` `items` `enemies` `combatants` `arenas` `npcs` `party` `quests`
+  `tuning` `dialogue` `map`.
 - `path` — loaded by the Phaser loader at runtime.
 
 Collection types (`races`, `items`, …) may be split across **multiple files** of the same
@@ -339,7 +340,62 @@ To add a second map: write the file, register it
 Exploration scene loads the first registered map by default; a door that travels between
 maps is the engine's next planned feature (see PLAN.md).
 
-## 11. Tune the combat (and checks)
+## 11. Add a tactical-arena combatant and arena
+
+The **Combat Arena** (main menu → *Combat Arena*) is a standalone hex-grid tactical
+playtest (combat-framework Phase 1), fully separate from the story combat above. Its
+combatants are authored **directly** — stats are *not* derived from attributes — so you
+can tune fights without touching character creation.
+
+**a)** `data/arena-combatants.json` — one template per unit (side-agnostic; the arena
+roster decides which side it fights on):
+
+```json
+{
+  "id": "kindler", "name": "Kindler",
+  "desc": "Calls fire from the backline; fragile up close.",
+  "glyph": "K", "color": "#c09a52",
+  "maxHp": 34, "speed": 11, "power": 15, "accuracy": 82,
+  "meleeEvasion": 8, "rangedEvasion": 12, "resistance": 2, "guard": 0,
+  "basicAttack": { "range": "ranged", "power": 11 },
+  "ai": { "targeting": "lowestHp" }
+}
+```
+
+- `basicAttack.range`: `melee` (usable only from the Frontline, hits the opposing
+  Frontline) or `ranged` (hits any foe; an accuracy penalty applies when fired from the
+  Frontline).
+- `accuracy`/`meleeEvasion`/`rangedEvasion` are points: hit% = `accuracy − evasion` (see
+  §12 tuning), clamped. `power` adds to `basicAttack.power`; `resistance` is flat damage
+  reduction; `guard` absorbs damage before HP.
+- Optional `ai.targeting` (`lowestHp` / `nearest` / `random`) is used only on the enemy
+  side. Optional `apStart` / `apCap` / `apGainPerTurn` override the `tuning.arena.ap`
+  defaults for that unit.
+
+**b)** `data/arenas.json` — a battlefield with a roster:
+
+```json
+{
+  "id": "skirmish", "name": "Greyreach Skirmish", "spacesPerLane": 3,
+  "roster": [
+    { "combatant": "kindler", "side": "player", "lane": "back",  "slot": 1 },
+    { "combatant": "husk-brute", "side": "enemy", "lane": "front", "slot": 1 }
+  ],
+  "obstacles": [ { "type": "object", "kind": "tree", "row": 2, "slot": 2 } ]
+}
+```
+
+- Each side has a `front` and `back` lane of `spacesPerLane` slots (`0..spacesPerLane-1`).
+  Validation rejects two units on one cell, out-of-range slots, and a roster missing
+  either side.
+- `obstacles` are inert in Phase 1 (drawn, and they block landing). `row` indexes the six
+  battlefield rows: `0` enemy-back, `1` enemy-front, `2`/`3` no-man's-land, `4`
+  player-front, `5` player-back.
+
+No code changes — add the two manifest lines if you create new files (they already exist
+for the shipped `skirmish`), reload, and the arena is playable.
+
+## 12. Tune the combat (and checks)
 
 Everything numeric lives in `data/combat-tuning.json`, commented inline: attribute→stat
 derivation, the damage formula's coefficients, element weakness/resist multipliers,
@@ -350,6 +406,14 @@ threshold that auto-reveals weaknesses, party size, and the exploration camera's
 zoom levels (`exploration.zoomLevels`, ordered nearest → farthest — Z steps out,
 X steps in; list as many or as few as you like, and pick the starting one with
 `zoomDefaultIndex`).
+
+The **tactical arena** (§11) reads its own block, `combat-tuning.json → arena`: the AP
+economy (`ap.start/gainPerTurn/cap/ceiling/basicAttackGain`), the action timer
+(`initiative.timerMax/Min`), the hit formula (`accuracy.evasionCoef/min/max`,
+`accuracy.rangedFromFrontlinePenalty`), `damage` (power/resistance coefficients, variance,
+floor), `crit` (chance/multiplier), and the `reposition`/`useItem` AP costs. These are
+independent of the story-combat numbers above. (Pixel layout of the hex grid is engine
+geometry in `systems/HexGrid.js`, not a tunable.)
 
 Change a number, reload, done. If you rename or remove a field the validator will tell
 you exactly what broke.

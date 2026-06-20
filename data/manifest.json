@@ -1,5 +1,5 @@
 {
-  "//": "Every content file the game loads. To add content: create the JSON file, add one line here. type tells the engine how to validate and index it: attributes | skills | races | classes | abilities | items | enemies | npcs | party | quests | tuning | dialogue | map. Keys must be unique.",
+  "//": "Every content file the game loads. To add content: create the JSON file, add one line here. type tells the engine how to validate and index it: attributes | skills | races | classes | abilities | items | enemies | combatants | arenas | npcs | party | quests | tuning | dialogue | map. Keys must be unique.",
   "files": [
     { "key": "attributes", "type": "attributes", "path": "data/attributes.json" },
     { "key": "skills", "type": "skills", "path": "data/skills.json" },
@@ -8,6 +8,8 @@
     { "key": "abilities", "type": "abilities", "path": "data/abilities.json" },
     { "key": "items", "type": "items", "path": "data/items.json" },
     { "key": "enemies", "type": "enemies", "path": "data/enemies.json" },
+    { "key": "combatants", "type": "combatants", "path": "data/arena-combatants.json" },
+    { "key": "arenas", "type": "arenas", "path": "data/arenas.json" },
     { "key": "npcs", "type": "npcs", "path": "data/npcs.json" },
     { "key": "party", "type": "party", "path": "data/party.json" },
     { "key": "quests", "type": "quests", "path": "data/quests.json" },
